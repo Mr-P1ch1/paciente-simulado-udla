@@ -28,14 +28,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
+import jakarta.annotation.security.RolesAllowed;
 import org.apache.commons.lang3.StringUtils;
 
 @PageTitle("Solicitudes de reserva")
 @Route(value = "data-grid", layout = MainLayout.class)
-@AnonymousAllowed
+@RolesAllowed("ADMIN")
 public class SolicitudesdereservaView extends Div {
 
-    private GridPro<Client> grid;
+    private Grid<Client> grid;
     private GridListDataView<Client> gridListDataView;
 
     private Grid.Column<Client> clientColumn;
@@ -57,7 +59,7 @@ public class SolicitudesdereservaView extends Div {
     }
 
     private void createGridComponent() {
-        grid = new GridPro<>();
+        grid = new Grid < > ();
         grid.setSelectionMode(SelectionMode.MULTI);
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_COLUMN_BORDERS);
         grid.setHeight("100%");
@@ -69,39 +71,30 @@ public class SolicitudesdereservaView extends Div {
     private void addColumnsToGrid() {
         createClientColumn();
         createAmountColumn();
-        createStatusColumn();
         createDateColumn();
     }
 
     private void createClientColumn() {
         clientColumn = grid.addColumn(new ComponentRenderer<>(client -> {
-            HorizontalLayout hl = new HorizontalLayout();
-            hl.setAlignItems(Alignment.CENTER);
-            Image img = new Image(client.getImg(), "");
+            //Solo nombres sin imagen
             Span span = new Span();
-            span.setClassName("name");
             span.setText(client.getClient());
-            hl.add(img, span);
-            return hl;
+            return span;
+
         })).setComparator(client -> client.getClient()).setHeader("Client");
     }
 
     private void createAmountColumn() {
         amountColumn = grid
-                .addEditColumn(Client::getAmount,
-                        new NumberRenderer<>(client -> client.getAmount(), NumberFormat.getCurrencyInstance(Locale.US)))
-                .text((item, newValue) -> item.setAmount(Double.parseDouble(newValue)))
-                .setComparator(client -> client.getAmount()).setHeader("Amount");
-    }
+                .addColumn(new NumberRenderer<>(Client::getAmount, NumberFormat.getCurrencyInstance(Locale.US)))
+                .setComparator(Client::getAmount).setHeader("Amount");
 
-    private void createStatusColumn() {
-        statusColumn = grid.addEditColumn(Client::getClient, new ComponentRenderer<>(client -> {
+        statusColumn = grid.addColumn(new ComponentRenderer<>(client -> {
             Span span = new Span();
             span.setText(client.getStatus());
             span.getElement().setAttribute("theme", "badge " + client.getStatus().toLowerCase());
             return span;
-        })).select((item, newValue) -> item.setStatus(newValue), Arrays.asList("Pending", "Success", "Error"))
-                .setComparator(client -> client.getStatus()).setHeader("Status");
+        })).setComparator(Client::getStatus).setHeader("Status");
     }
 
     private void createDateColumn() {

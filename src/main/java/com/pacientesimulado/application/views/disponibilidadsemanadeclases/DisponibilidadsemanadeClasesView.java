@@ -1,4 +1,4 @@
-package com.pacientesimulado.application.views.disponibilidadsemanadeclases;
+/*package com.pacientesimulado.application.views.disponibilidadsemanadeclases;
 
 import com.pacientesimulado.application.views.MainLayout;
 import com.vaadin.flow.component.Composite;
@@ -17,6 +17,8 @@ import jakarta.annotation.security.RolesAllowed;
 @PageTitle("Disponibilidad semana de Clases")
 @Route(value = "disponibilidad-semana-de-clases", layout = MainLayout.class)
 @RolesAllowed("USER")
+//Modificar para que no sea desde admin
+
 public class DisponibilidadsemanadeClasesView extends Composite<VerticalLayout> {
 
     public DisponibilidadsemanadeClasesView() {
@@ -134,5 +136,116 @@ public class DisponibilidadsemanadeClasesView extends Composite<VerticalLayout> 
         layoutRow2.add(h620);
         layoutRow2.add(h621);
         getContent().add(buttonPrimary);
+
+    }
+}*/
+package com.pacientesimulado.application.views.disponibilidadsemanadeclases;
+
+import com.pacientesimulado.application.views.MainLayout;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.html.H6;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
+import jakarta.annotation.security.RolesAllowed;
+
+@PageTitle("Disponibilidad semana de Clases")
+@Route(value = "disponibilidad-semana-de-clases", layout = MainLayout.class)
+@RolesAllowed("USER")
+public class DisponibilidadsemanadeClasesView extends Composite<VerticalLayout> {
+
+    public DisponibilidadsemanadeClasesView() {
+        HorizontalLayout layoutRow = new HorizontalLayout();
+        DatePicker datePicker = new DatePicker();
+        H6 h6 = new H6("Clases Módulos");
+
+        // Contenedor principal para la cuadrícula de disponibilidad
+        VerticalLayout mainGrid = new VerticalLayout();
+        mainGrid.setWidthFull();
+        mainGrid.setSpacing(true);
+
+        // Crear un GridLayout para alinear los días y las horas correctamente
+        Grid<Disponibilidad> grid = new Grid<>(Disponibilidad.class, false);
+        grid.addColumn(Disponibilidad::getHora).setHeader("Hora").setAutoWidth(true);
+
+        String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        for (String dia : dias) {
+            grid.addComponentColumn(disponibilidad -> {
+                Checkbox checkbox = new Checkbox();
+                checkbox.setValue(disponibilidad.isDisponible(dia));
+                return checkbox;
+            }).setHeader(dia).setAutoWidth(true);
+        }
+
+        grid.setItems(
+                new Disponibilidad("7h00"), new Disponibilidad("8h05"), new Disponibilidad("9h10"),
+                new Disponibilidad("10h15"), new Disponibilidad("11h20"), new Disponibilidad("12h25"),
+                new Disponibilidad("13h30"), new Disponibilidad("14h35"), new Disponibilidad("15h40"),
+                new Disponibilidad("16h45"), new Disponibilidad("17h45"), new Disponibilidad("18h50"),
+                new Disponibilidad("19h50")
+        );
+        grid.addThemeVariants(GridVariant.LUMO_COMPACT);
+
+        Button buttonPrimary = new Button("Enviar");
+        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        // Configuración del layout principal
+        getContent().setWidth("100%");
+        getContent().getStyle().set("flex-grow", "1");
+        getContent().addClassName(Gap.MEDIUM);
+        getContent().add(datePicker, h6, grid, buttonPrimary);
+        getContent().setAlignSelf(FlexComponent.Alignment.END, buttonPrimary);
+    }
+
+    private static class Disponibilidad {
+        private final String hora;
+        private final boolean[] disponibilidad;
+
+        public Disponibilidad(String hora) {
+            this.hora = hora;
+            this.disponibilidad = new boolean[7]; // Inicializar con falso
+        }
+
+        public String getHora() {
+            return hora;
+        }
+
+        public boolean isDisponible(String dia) {
+            int index = switch (dia) {
+                case "Lunes" -> 0;
+                case "Martes" -> 1;
+                case "Miércoles" -> 2;
+                case "Jueves" -> 3;
+                case "Viernes" -> 4;
+                case "Sábado" -> 5;
+                case "Domingo" -> 6;
+                default -> throw new IllegalArgumentException("Día inválido: " + dia);
+            };
+            return disponibilidad[index];
+        }
+
+        public void setDisponible(String dia, boolean disponible) {
+            int index = switch (dia) {
+                case "Lunes" -> 0;
+                case "Martes" -> 1;
+                case "Miércoles" -> 2;
+                case "Jueves" -> 3;
+                case "Viernes" -> 4;
+                case "Sábado" -> 5;
+                case "Domingo" -> 6;
+                default -> throw new IllegalArgumentException("Día inválido: " + dia);
+            };
+            disponibilidad[index] = disponible;
+        }
     }
 }
+

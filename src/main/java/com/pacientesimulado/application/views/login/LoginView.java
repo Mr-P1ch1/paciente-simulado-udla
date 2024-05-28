@@ -10,6 +10,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.internal.RouteUtil;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @AnonymousAllowed
 @PageTitle("Login")
@@ -18,14 +20,16 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
     private final AuthenticatedUser authenticatedUser;
 
+    @Autowired
     public LoginView(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
+
         setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
 
         LoginI18n i18n = LoginI18n.createDefault();
         i18n.setHeader(new LoginI18n.Header());
         i18n.getHeader().setTitle("Paciente Simulado");
-        i18n.getHeader().setDescription("Login using user/user or admin/admin");
+        i18n.getHeader().setDescription("Login using your credentials");
         i18n.setAdditionalInformation(null);
         setI18n(i18n);
 
@@ -44,3 +48,4 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
         setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
     }
 }
+

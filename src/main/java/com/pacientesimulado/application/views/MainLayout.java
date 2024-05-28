@@ -1,6 +1,5 @@
 package com.pacientesimulado.application.views;
 
-import com.pacientesimulado.application.data.User;
 import com.pacientesimulado.application.security.AuthenticatedUser;
 import com.pacientesimulado.application.views.agendarreserva.AgendarReservaView;
 import com.pacientesimulado.application.views.disponibilidadsemanadeclases.DisponibilidadsemanadeClasesView;
