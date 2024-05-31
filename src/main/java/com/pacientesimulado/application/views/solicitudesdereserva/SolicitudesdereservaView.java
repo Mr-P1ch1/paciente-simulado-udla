@@ -1,196 +1,138 @@
-package com.pacientesimulado.application.views.solicitudesdereserva;
+/*package com.pacientesimulado.application.views.solicitudesdereserva;
 
+import com.pacientesimulado.application.data.Actor;
+import com.pacientesimulado.application.data.Reserva;
+import com.pacientesimulado.application.services.ActorService;
+import com.pacientesimulado.application.services.ReservaService;
 import com.pacientesimulado.application.views.MainLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.grid.HeaderRow;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.gridpro.GridPro;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.LocalDateRenderer;
-import com.vaadin.flow.data.renderer.NumberRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import java.text.NumberFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-
-import jakarta.annotation.security.RolesAllowed;
-import org.apache.commons.lang3.StringUtils;
 
 @PageTitle("Solicitudes de reserva")
-@Route(value = "data-grid", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
-public class SolicitudesdereservaView extends Div {
+@Route(value = "solicitudes-reserva", layout = MainLayout.class)
+@AnonymousAllowed
+public class SolicitudesdereservaView extends VerticalLayout {
 
-    private Grid<Client> grid;
-    private GridListDataView<Client> gridListDataView;
+    private static final Logger logger = LoggerFactory.getLogger(SolicitudesdereservaView.class);
 
-    private Grid.Column<Client> clientColumn;
-    private Grid.Column<Client> amountColumn;
-    private Grid.Column<Client> statusColumn;
-    private Grid.Column<Client> dateColumn;
+    private final ReservaService reservaService;
+    private final ActorService actorService;
+    private final Grid<Reserva> grid;
+    private final Binder <Reserva> binder;
 
-    public SolicitudesdereservaView() {
-        addClassName("solicitudesdereserva-view");
-        setSizeFull();
-        createGrid();
+    @Autowired
+    public SolicitudesdereservaView(ReservaService reservaService, ActorService actorService) {
+        this.reservaService = reservaService;
+        this.actorService = actorService;
+        this.grid = new Grid<>(Reserva.class);
+        this.binder = new Binder<>(Reserva.class);
+
+        logger.info("Inicializando SolicitudesdereservaView");
+
+        configureGrid();
         add(grid);
+
+        listReservas();
     }
 
-    private void createGrid() {
-        createGridComponent();
-        addColumnsToGrid();
-        addFiltersToGrid();
-    }
-
-    private void createGridComponent() {
-        grid = new Grid < > ();
-        grid.setSelectionMode(SelectionMode.MULTI);
+    private void configureGrid() {
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_COLUMN_BORDERS);
         grid.setHeight("100%");
 
-        List<Client> clients = getClients();
-        gridListDataView = grid.setItems(clients);
+        grid.addColumn(Reserva::getCorreoDoctor).setHeader("Correo Doctor");
+        grid.addColumn(Reserva::getCarrera).setHeader("Carrera");
+        grid.addColumn(Reserva::getTipo).setHeader("Tipo");
+        grid.addColumn(Reserva::getCaso).setHeader("Caso");
+        grid.addColumn(Reserva::getActividad).setHeader("Actividad");
+        grid.addColumn(Reserva::getNumeroPacientes).setHeader("Número de Pacientes");
+        grid.addColumn(Reserva::getFormaRequerimiento).setHeader("Forma de Requerimiento");
+        grid.addColumn(reserva -> {
+            LocalDate fechaEntrenamiento = reserva.getFechaEntrenamiento();
+            return (fechaEntrenamiento != null) ? fechaEntrenamiento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+        }).setHeader("Fecha de Entrenamiento");
+        grid.addColumn(reserva -> {
+            LocalDate fechaInicioSemana = reserva.getFechaInicioSemana();
+            return (fechaInicioSemana != null) ? fechaInicioSemana.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+        }).setHeader("Fecha de Inicio de Semana");
+        grid.addColumn(reserva -> reserva.getHorasReserva() != null ? reserva.getHorasReserva().toString() : "").setHeader("Horas Reserva");
+        grid.addColumn(Reserva::getEstado).setHeader("Estado");
+
+        grid.addComponentColumn(reserva -> {
+            Button assignButton = new Button("Asignar Actor");
+            assignButton.addClickListener(click -> showAssignDialog(reserva));
+            return assignButton;
+        }).setHeader("Acciones");
+
+        grid.setHeightFull();
     }
 
-    private void addColumnsToGrid() {
-        createClientColumn();
-        createAmountColumn();
-        createDateColumn();
-    }
-
-    private void createClientColumn() {
-        clientColumn = grid.addColumn(new ComponentRenderer<>(client -> {
-            //Solo nombres sin imagen
-            Span span = new Span();
-            span.setText(client.getClient());
-            return span;
-
-        })).setComparator(client -> client.getClient()).setHeader("Client");
-    }
-
-    private void createAmountColumn() {
-        amountColumn = grid
-                .addColumn(new NumberRenderer<>(Client::getAmount, NumberFormat.getCurrencyInstance(Locale.US)))
-                .setComparator(Client::getAmount).setHeader("Amount");
-
-        statusColumn = grid.addColumn(new ComponentRenderer<>(client -> {
-            Span span = new Span();
-            span.setText(client.getStatus());
-            span.getElement().setAttribute("theme", "badge " + client.getStatus().toLowerCase());
-            return span;
-        })).setComparator(Client::getStatus).setHeader("Status");
-    }
-
-    private void createDateColumn() {
-        dateColumn = grid
-                .addColumn(new LocalDateRenderer<>(client -> LocalDate.parse(client.getDate()),
-                        () -> DateTimeFormatter.ofPattern("M/d/yyyy")))
-                .setComparator(client -> client.getDate()).setHeader("Date").setWidth("180px").setFlexGrow(0);
-    }
-
-    private void addFiltersToGrid() {
-        HeaderRow filterRow = grid.appendHeaderRow();
-
-        TextField clientFilter = new TextField();
-        clientFilter.setPlaceholder("Filter");
-        clientFilter.setClearButtonVisible(true);
-        clientFilter.setWidth("100%");
-        clientFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        clientFilter.addValueChangeListener(event -> gridListDataView
-                .addFilter(client -> StringUtils.containsIgnoreCase(client.getClient(), clientFilter.getValue())));
-        filterRow.getCell(clientColumn).setComponent(clientFilter);
-
-        TextField amountFilter = new TextField();
-        amountFilter.setPlaceholder("Filter");
-        amountFilter.setClearButtonVisible(true);
-        amountFilter.setWidth("100%");
-        amountFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        amountFilter.addValueChangeListener(event -> gridListDataView.addFilter(client -> StringUtils
-                .containsIgnoreCase(Double.toString(client.getAmount()), amountFilter.getValue())));
-        filterRow.getCell(amountColumn).setComponent(amountFilter);
-
-        ComboBox<String> statusFilter = new ComboBox<>();
-        statusFilter.setItems(Arrays.asList("Pending", "Success", "Error"));
-        statusFilter.setPlaceholder("Filter");
-        statusFilter.setClearButtonVisible(true);
-        statusFilter.setWidth("100%");
-        statusFilter.addValueChangeListener(
-                event -> gridListDataView.addFilter(client -> areStatusesEqual(client, statusFilter)));
-        filterRow.getCell(statusColumn).setComponent(statusFilter);
-
-        DatePicker dateFilter = new DatePicker();
-        dateFilter.setPlaceholder("Filter");
-        dateFilter.setClearButtonVisible(true);
-        dateFilter.setWidth("100%");
-        dateFilter.addValueChangeListener(
-                event -> gridListDataView.addFilter(client -> areDatesEqual(client, dateFilter)));
-        filterRow.getCell(dateColumn).setComponent(dateFilter);
-    }
-
-    private boolean areStatusesEqual(Client client, ComboBox<String> statusFilter) {
-        String statusFilterValue = statusFilter.getValue();
-        if (statusFilterValue != null) {
-            return StringUtils.equals(client.getStatus(), statusFilterValue);
+    private void listReservas() {
+        try {
+            logger.info("Listando reservas");
+            List<Reserva> reservas = reservaService.obtenerTodasLasReservas();
+            if (reservas != null && !reservas.isEmpty()) {
+                grid.setItems(reservas);
+                logger.info("Reservas cargadas correctamente: " + reservas.size());
+                Notification.show("Reservas cargadas correctamente: " + reservas.size());
+            } else {
+                Notification.show("No se encontraron reservas.");
+                logger.warn("No se encontraron reservas en la base de datos.");
+            }
+        } catch (Exception e) {
+            Notification.show("Error al cargar las reservas.");
+            logger.error("Error al cargar las reservas: ", e);
         }
-        return true;
     }
 
-    private boolean areDatesEqual(Client client, DatePicker dateFilter) {
-        LocalDate dateFilterValue = dateFilter.getValue();
-        if (dateFilterValue != null) {
-            LocalDate clientDate = LocalDate.parse(client.getDate());
-            return dateFilterValue.equals(clientDate);
-        }
-        return true;
-    }
+    private void showAssignDialog(Reserva reserva) {
+        Dialog dialog = new Dialog();
+        dialog.setWidth("400px");
 
-    private List<Client> getClients() {
-        return Arrays.asList(
-                createClient(4957, "https://randomuser.me/api/portraits/women/42.jpg", "Amarachi Nkechi", 47427.0,
-                        "Success", "2019-05-09"),
-                createClient(675, "https://randomuser.me/api/portraits/women/24.jpg", "Bonelwa Ngqawana", 70503.0,
-                        "Success", "2019-05-09"),
-                createClient(6816, "https://randomuser.me/api/portraits/men/42.jpg", "Debashis Bhuiyan", 58931.0,
-                        "Success", "2019-05-07"),
-                createClient(5144, "https://randomuser.me/api/portraits/women/76.jpg", "Jacqueline Asong", 25053.0,
-                        "Pending", "2019-04-25"),
-                createClient(9800, "https://randomuser.me/api/portraits/men/24.jpg", "Kobus van de Vegte", 7319.0,
-                        "Pending", "2019-04-22"),
-                createClient(3599, "https://randomuser.me/api/portraits/women/94.jpg", "Mattie Blooman", 18441.0,
-                        "Error", "2019-04-17"),
-                createClient(3989, "https://randomuser.me/api/portraits/men/76.jpg", "Oea Romana", 33376.0, "Pending",
-                        "2019-04-17"),
-                createClient(1077, "https://randomuser.me/api/portraits/men/94.jpg", "Stephanus Huggins", 75774.0,
-                        "Success", "2019-02-26"),
-                createClient(8942, "https://randomuser.me/api/portraits/men/16.jpg", "Torsten Paulsson", 82531.0,
-                        "Pending", "2019-02-21"));
-    }
+        FormLayout formLayout = new FormLayout();
+        ComboBox<Actor> actorComboBox = new ComboBox<>("Seleccione Actor");
+        actorComboBox.setItems(actorService.obtenerTodosLosActores());
+        actorComboBox.setItemLabelGenerator(Actor::getNombre);
 
-    private Client createClient(int id, String img, String client, double amount, String status, String date) {
-        Client c = new Client();
-        c.setId(id);
-        c.setImg(img);
-        c.setClient(client);
-        c.setAmount(amount);
-        c.setStatus(status);
-        c.setDate(date);
+        Button assignButton = new Button("Asignar");
+        assignButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        assignButton.addClickListener(event -> {
+            if (actorComboBox.getValue() != null) {
+                // Asignar el actor seleccionado a la reserva
+                reserva.setEstado("asignado");
+                reservaService.guardarReserva(reserva);
+                Notification.show("Actor asignado correctamente.");
+                dialog.close();
+                listReservas();
+            } else {
+                Notification.show("Por favor, seleccione un actor.");
+            }
+        });
 
-        return c;
+        Button cancelButton = new Button("Cancelar", event -> dialog.close());
+
+        formLayout.add(actorComboBox, new HorizontalLayout(assignButton, cancelButton));
+        dialog.add(formLayout);
+        dialog.open();
     }
-};
+}
+*/

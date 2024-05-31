@@ -10,14 +10,21 @@ import java.util.Optional;
 
 @Service
 public class UsuarioService {
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public Usuario registrarUsuario( Usuario usuario) {
+    public Usuario registrarUsuario(Usuario usuario) {
+        if (usuarioRepository.findByCorreo(usuario.getCorreo()).isPresent()) {
+            throw new RuntimeException("El correo ya está en uso");
+        }
+        if (!"Doctor".equalsIgnoreCase(usuario.getRol())) {
+            throw new RuntimeException("Solo los usuarios con rol de 'Doctor' pueden registrarse");
+        }
         return usuarioRepository.save(usuario);
     }
 
-    public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado) {
+    public Usuario actualizarUsuario(String id, Usuario usuarioActualizado) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
@@ -30,11 +37,19 @@ public class UsuarioService {
         throw new RuntimeException("Usuario no encontrado");
     }
 
-    public Usuario obtenerUsuario(Long id) {
+    public Usuario obtenerUsuario(String id) {
         return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    public List<Usuario> obtenerTodos() {
+        return usuarioRepository.findAll();
     }
 
     public List<Usuario> findByRol(String rol) {
         return usuarioRepository.findByRol(rol);
+    }
+
+    public Optional<Usuario> findByCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo);
     }
 }

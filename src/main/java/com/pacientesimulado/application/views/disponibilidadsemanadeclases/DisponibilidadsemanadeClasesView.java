@@ -1,251 +1,173 @@
-/*package com.pacientesimulado.application.views.disponibilidadsemanadeclases;
-
-import com.pacientesimulado.application.views.MainLayout;
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.html.H6;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
-import jakarta.annotation.security.RolesAllowed;
-
-@PageTitle("Disponibilidad semana de Clases")
-@Route(value = "disponibilidad-semana-de-clases", layout = MainLayout.class)
-@RolesAllowed("USER")
-//Modificar para que no sea desde admin
-
-public class DisponibilidadsemanadeClasesView extends Composite<VerticalLayout> {
-
-    public DisponibilidadsemanadeClasesView() {
-        HorizontalLayout layoutRow = new HorizontalLayout();
-        DatePicker datePicker = new DatePicker();
-        H6 h6 = new H6();
-        HorizontalLayout layoutRow2 = new HorizontalLayout();
-        VerticalLayout layoutColumn2 = new VerticalLayout();
-        H6 h62 = new H6();
-        H6 h63 = new H6();
-        H6 h64 = new H6();
-        H6 h65 = new H6();
-        H6 h66 = new H6();
-        H6 h67 = new H6();
-        H6 h68 = new H6();
-        H6 h69 = new H6();
-        H6 h610 = new H6();
-        H6 h611 = new H6();
-        H6 h612 = new H6();
-        H6 h613 = new H6();
-        H6 h614 = new H6();
-        H6 h615 = new H6();
-        H6 h616 = new H6();
-        H6 h617 = new H6();
-        H6 h618 = new H6();
-        H6 h619 = new H6();
-        H6 h620 = new H6();
-        H6 h621 = new H6();
-        Button buttonPrimary = new Button();
-        getContent().setWidth("100%");
-        getContent().getStyle().set("flex-grow", "1");
-        layoutRow.addClassName(Gap.MEDIUM);
-        layoutRow.setWidth("600px");
-        layoutRow.setHeight("min-content");
-        datePicker.setLabel("Semana de clases disponible");
-        datePicker.setWidth("226px");
-        h6.setText("Clases Módulos");
-        h6.setWidth("max-content");
-        layoutRow2.setWidthFull();
-        getContent().setFlexGrow(1.0, layoutRow2);
-        layoutRow2.addClassName(Gap.MEDIUM);
-        layoutRow2.setWidth("100%");
-        layoutRow2.getStyle().set("flex-grow", "1");
-        layoutColumn2.setHeightFull();
-        layoutRow2.setFlexGrow(1.0, layoutColumn2);
-        layoutColumn2.setWidth("69px");
-        layoutColumn2.getStyle().set("flex-grow", "1");
-        h62.setText("7h00");
-        h62.setWidth("max-content");
-        h63.setText("8h05");
-        h63.setWidth("max-content");
-        h64.setText("9h10");
-        h64.setWidth("max-content");
-        h65.setText("10h15");
-        h65.setWidth("max-content");
-        h66.setText("11h20");
-        h66.setWidth("max-content");
-        h67.setText("12h25");
-        h67.setWidth("max-content");
-        h68.setText("13h30");
-        h68.setWidth("max-content");
-        h69.setText("14h35");
-        h69.setWidth("max-content");
-        h610.setText("15h40");
-        h610.setWidth("max-content");
-        h611.setText("16h45");
-        h611.setWidth("max-content");
-        h612.setText("17h45");
-        h612.setWidth("max-content");
-        h613.setText("18h50");
-        h613.setWidth("max-content");
-        h614.setText("19h50");
-        h614.setWidth("max-content");
-        h615.setText("Lunes");
-        h615.setWidth("max-content");
-        h616.setText("Martes");
-        h616.setWidth("max-content");
-        h617.setText("Miércoles");
-        h617.setWidth("max-content");
-        h618.setText("Jueves");
-        h618.setWidth("max-content");
-        h619.setText("Viernes");
-        h619.setWidth("max-content");
-        h620.setText("Sabado");
-        h620.setWidth("max-content");
-        h621.setText("Domingo");
-        h621.setWidth("max-content");
-        buttonPrimary.setText("Enviar");
-        getContent().setAlignSelf(FlexComponent.Alignment.END, buttonPrimary);
-        buttonPrimary.setWidth("min-content");
-        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        getContent().add(layoutRow);
-        layoutRow.add(datePicker);
-        getContent().add(h6);
-        getContent().add(layoutRow2);
-        layoutRow2.add(layoutColumn2);
-        layoutColumn2.add(h62);
-        layoutColumn2.add(h63);
-        layoutColumn2.add(h64);
-        layoutColumn2.add(h65);
-        layoutColumn2.add(h66);
-        layoutColumn2.add(h67);
-        layoutColumn2.add(h68);
-        layoutColumn2.add(h69);
-        layoutColumn2.add(h610);
-        layoutColumn2.add(h611);
-        layoutColumn2.add(h612);
-        layoutColumn2.add(h613);
-        layoutColumn2.add(h614);
-        layoutRow2.add(h615);
-        layoutRow2.add(h616);
-        layoutRow2.add(h617);
-        layoutRow2.add(h618);
-        layoutRow2.add(h619);
-        layoutRow2.add(h620);
-        layoutRow2.add(h621);
-        getContent().add(buttonPrimary);
-
-    }
-}*/
 package com.pacientesimulado.application.views.disponibilidadsemanadeclases;
 
+import com.pacientesimulado.application.data.Actor;
+import com.pacientesimulado.application.data.Disponibilidad;
+import com.pacientesimulado.application.services.ActorService;
+import com.pacientesimulado.application.services.DisponibilidadService;
 import com.pacientesimulado.application.views.MainLayout;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.html.H6;
+import com.vaadin.flow.component.datepicker.DatePicker.DatePickerI18n;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
-import jakarta.annotation.security.RolesAllowed;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDate;
+import java.util.*;
 
 @PageTitle("Disponibilidad semana de Clases")
 @Route(value = "disponibilidad-semana-de-clases", layout = MainLayout.class)
-@RolesAllowed("USER")
 public class DisponibilidadsemanadeClasesView extends Composite<VerticalLayout> {
 
-    public DisponibilidadsemanadeClasesView() {
-        HorizontalLayout layoutRow = new HorizontalLayout();
-        DatePicker datePicker = new DatePicker();
-        H6 h6 = new H6("Clases Módulos");
+    private final DisponibilidadService disponibilidadService;
+    private final ActorService actorService;
+    private Optional<Actor> actor = Optional.empty();
+    private LocalDate fechaSeleccionada;
+    private DatePicker datePicker;
+    private Button colocarDisponibilidadButton;
 
-        // Contenedor principal para la cuadrícula de disponibilidad
+    @Autowired
+    public DisponibilidadsemanadeClasesView(DisponibilidadService disponibilidadService, ActorService actorService) {
+        this.disponibilidadService = disponibilidadService;
+        this.actorService = actorService;
+
+        VerticalLayout mainLayout = getContent();
+        mainLayout.setSizeFull();
+        mainLayout.setPadding(false);
+        mainLayout.setSpacing(true);
+
+        EmailField emailField = new EmailField("Correo del actor");
+        emailField.setPlaceholder("Ingrese el correo del actor");
+
+        Button ingresarButton = new Button("Ingresar");
+        ingresarButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        ingresarButton.addClickListener(e -> {
+            String email = emailField.getValue();
+            actorService.obtenerActorPorCorreo(email).ifPresentOrElse(
+                    foundActor -> {
+                        actor = Optional.of(foundActor);
+                        Notification.show("Bienvenido, " + foundActor.getNombre() + ". Selecciona tu disponibilidad.");
+                        datePicker.setEnabled(true);
+                    },
+                    () -> {
+                        Notification.show("No se encontró actor con ese correo");
+                        actor = Optional.empty();  // Asegurarse de que la variable actor esté vacía si no se encuentra
+                    }
+            );
+        });
+
+        datePicker = new DatePicker("Fecha de inicio de semana");
+        datePicker.setI18n(new DatePickerI18n()
+                .setWeekdays(Arrays.asList("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"))
+                .setFirstDayOfWeek(1));
+
+        datePicker.setPlaceholder("Selecciona un lunes");
+        datePicker.setEnabled(false);
+        datePicker.addValueChangeListener(event -> {
+            fechaSeleccionada = event.getValue();
+            colocarDisponibilidadButton.setText("Coloca tu disponibilidad");
+        });
+
         VerticalLayout mainGrid = new VerticalLayout();
         mainGrid.setWidthFull();
         mainGrid.setSpacing(true);
 
-        // Crear un GridLayout para alinear los días y las horas correctamente
-        Grid<Disponibilidad> grid = new Grid<>(Disponibilidad.class, false);
-        grid.addColumn(Disponibilidad::getHora).setHeader("Hora").setAutoWidth(true);
+        Grid<String> grid = new Grid<>(String.class, false);
+        grid.addColumn(String::toString).setHeader("Hora").setAutoWidth(true);
 
+        String[] horas = {"7h00", "8h05", "9h10", "10h15", "11h20", "12h25", "13h30", "14h35", "15h40", "16h45", "17h45", "18h50", "19h50"};
         String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        Map<String, Map<String, Checkbox>> disponibilidadMap = new HashMap<>();
+
         for (String dia : dias) {
-            grid.addComponentColumn(disponibilidad -> {
+            Map<String, Checkbox> dayMap = new HashMap<>();
+            grid.addComponentColumn(hora -> {
+                HorizontalLayout innerLayout = new HorizontalLayout();
+                innerLayout.setSpacing(true);
+                innerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+
                 Checkbox checkbox = new Checkbox();
-                checkbox.setValue(disponibilidad.isDisponible(dia));
-                return checkbox;
+                dayMap.put(hora, checkbox);
+
+                innerLayout.add(checkbox);
+                return innerLayout;
             }).setHeader(dia).setAutoWidth(true);
+            disponibilidadMap.put(dia, dayMap);
         }
 
-        grid.setItems(
-                new Disponibilidad("7h00"), new Disponibilidad("8h05"), new Disponibilidad("9h10"),
-                new Disponibilidad("10h15"), new Disponibilidad("11h20"), new Disponibilidad("12h25"),
-                new Disponibilidad("13h30"), new Disponibilidad("14h35"), new Disponibilidad("15h40"),
-                new Disponibilidad("16h45"), new Disponibilidad("17h45"), new Disponibilidad("18h50"),
-                new Disponibilidad("19h50")
-        );
+        grid.setItems(horas);
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
 
-        Button buttonPrimary = new Button("Enviar");
-        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        colocarDisponibilidadButton = new Button("Guardar Disponibilidad");
+        colocarDisponibilidadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        colocarDisponibilidadButton.addClickListener(e -> {
+            if (actor.isPresent() && fechaSeleccionada != null) {
+                guardarDisponibilidad(actor.get(), disponibilidadMap);
+                Notification.show("Disponibilidad guardada correctamente.");
+            } else {
+                Notification.show("Por favor, busque un actor y seleccione una fecha primero.");
+            }
+        });
 
-        // Configuración del layout principal
-        getContent().setWidth("100%");
-        getContent().getStyle().set("flex-grow", "1");
-        getContent().addClassName(Gap.MEDIUM);
-        getContent().add(datePicker, h6, grid, buttonPrimary);
-        getContent().setAlignSelf(FlexComponent.Alignment.END, buttonPrimary);
+        mainLayout.setWidth("100%");
+        mainLayout.getStyle().set("flex-grow", "1");
+        mainLayout.addClassName(Gap.MEDIUM);
+        mainLayout.add(emailField, ingresarButton, datePicker, mainGrid, grid, colocarDisponibilidadButton);
+        mainLayout.setAlignSelf(FlexComponent.Alignment.END, colocarDisponibilidadButton);
     }
 
-    private static class Disponibilidad {
-        private final String hora;
-        private final boolean[] disponibilidad;
-
-        public Disponibilidad(String hora) {
-            this.hora = hora;
-            this.disponibilidad = new boolean[7]; // Inicializar con falso
+    private void cargarDisponibilidad(Actor actor, Map<String, Map<String, Checkbox>> disponibilidadMap) {
+        List<Disponibilidad> disponibilidades = disponibilidadService.obtenerPorActorId(actor.getId());
+        for (Disponibilidad disponibilidad : disponibilidades) {
+            if (disponibilidad.getFechaInicioSemana().equals(fechaSeleccionada)) {
+                for (String dia : disponibilidadMap.keySet()) {
+                    Map<String, Checkbox> dayMap = disponibilidadMap.get(dia);
+                    if (dayMap != null) {
+                        String[] horasDisponibles = disponibilidad.getHorasDisponibles(dia);
+                        for (String hora : horasDisponibles) {
+                            Checkbox checkbox = dayMap.get(hora);
+                            if (checkbox != null) {
+                                checkbox.setValue(true);
+                            }
+                        }
+                    }
+                }
+            }
         }
+    }
 
-        public String getHora() {
-            return hora;
-        }
+    private void guardarDisponibilidad(Actor actor, Map<String, Map<String, Checkbox>> disponibilidadMap) {
+        Disponibilidad disponibilidad = new Disponibilidad(fechaSeleccionada);
+        disponibilidad.setActorId(actor.getId());
 
-        public boolean isDisponible(String dia) {
-            int index = switch (dia) {
-                case "Lunes" -> 0;
-                case "Martes" -> 1;
-                case "Miércoles" -> 2;
-                case "Jueves" -> 3;
-                case "Viernes" -> 4;
-                case "Sábado" -> 5;
-                case "Domingo" -> 6;
-                default -> throw new IllegalArgumentException("Día inválido: " + dia);
-            };
-            return disponibilidad[index];
+        for (String dia : disponibilidadMap.keySet()) {
+            Map<String, Checkbox> dayMap = disponibilidadMap.get(dia);
+            List<String> horasDisponibles = new ArrayList<>();
+            if (dayMap != null) {
+                for (String hora : dayMap.keySet()) {
+                    Checkbox checkbox = dayMap.get(hora);
+                    if (checkbox != null && checkbox.getValue()) {
+                        horasDisponibles.add(hora);
+                    }
+                }
+                if (!horasDisponibles.isEmpty()) {
+                    Collections.sort(horasDisponibles); // Ordenar las horas
+                    disponibilidad.setDisponible(dia, true);
+                    disponibilidad.setHorasDisponibles(dia, horasDisponibles.toArray(new String[0]));
+                }
+            }
         }
-
-        public void setDisponible(String dia, boolean disponible) {
-            int index = switch (dia) {
-                case "Lunes" -> 0;
-                case "Martes" -> 1;
-                case "Miércoles" -> 2;
-                case "Jueves" -> 3;
-                case "Viernes" -> 4;
-                case "Sábado" -> 5;
-                case "Domingo" -> 6;
-                default -> throw new IllegalArgumentException("Día inválido: " + dia);
-            };
-            disponibilidad[index] = disponible;
-        }
+        disponibilidadService.guardarDisponibilidad(disponibilidad);
     }
 }
-

@@ -3,7 +3,6 @@ package com.pacientesimulado.application.controller;
 import com.pacientesimulado.application.data.Disponibilidad;
 import com.pacientesimulado.application.services.DisponibilidadService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,18 +10,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/disponibilidades")
 public class DisponibilidadController {
-    @Autowired
-    private DisponibilidadService disponibilidadService;
 
-    @PostMapping("/actualizar/{actorId}")
-    public ResponseEntity <List<Disponibilidad>> actualizarDisponibilidad( @PathVariable Long actorId, @RequestBody List<Disponibilidad> disponibilidades) {
-        List<Disponibilidad> nuevasDisponibilidades = disponibilidadService.actualizarDisponibilidad(actorId, disponibilidades);
-        return ResponseEntity.ok(nuevasDisponibilidades);
+    private final DisponibilidadService disponibilidadService;
+
+    @Autowired
+    public DisponibilidadController(DisponibilidadService disponibilidadService) {
+        this.disponibilidadService = disponibilidadService;
     }
 
-    @GetMapping("/{actorId}")
-    public ResponseEntity<List<Disponibilidad>> obtenerDisponibilidades(@PathVariable Long actorId) {
-        List<Disponibilidad> disponibilidades = disponibilidadService.obtenerDisponibilidades(actorId);
-        return ResponseEntity.ok(disponibilidades);
+    @GetMapping("/actor/{actorId}")
+    public List<Disponibilidad> obtenerDisponibilidadesPorActorId(@PathVariable String actorId) {
+        return disponibilidadService.obtenerDisponibilidadesPorActorId(actorId);
+    }
+
+    @PostMapping("/guardar")
+    public Disponibilidad guardarDisponibilidad(@RequestBody Disponibilidad disponibilidad) {
+        return disponibilidadService.guardarDisponibilidad(disponibilidad);
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminarDisponibilidad(@PathVariable String id) {
+        disponibilidadService.eliminarDisponibilidad(id);
     }
 }

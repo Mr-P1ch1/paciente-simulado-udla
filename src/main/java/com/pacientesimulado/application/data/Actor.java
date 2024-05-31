@@ -1,30 +1,41 @@
 package com.pacientesimulado.application.data;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import java.util.List;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "actores")
-public class Actor extends Usuario {
-    private String sexo;
+@Document(collection = "actores")
+public class Actor {
+    @Id
+    private String id;
+    private String nombre;
+    private String correo;
     private int edad;
-    private String talla;
-    private String altura;
+    private String sexo;
+    private double peso;
+    private double altura;
 
-    @OneToMany(mappedBy = "actor")
-    private List<Reserva> reservas;
-
-    @OneToMany(mappedBy = "actor")
-    private List<Disponibilidad> disponibilidades;
-
-    public String getSexo ( ) {
-        return sexo;
+    public String getId ( ) {
+        return id;
     }
 
-    public void setSexo ( String sexo ) {
-        this.sexo = sexo;
+    public void setId ( String id ) {
+        this.id = id;
+    }
+
+    public String getNombre ( ) {
+        return nombre;
+    }
+
+    public void setNombre ( String nombre ) {
+        this.nombre = nombre;
+    }
+
+    public String getCorreo ( ) {
+        return correo;
+    }
+
+    public void setCorreo ( String correo ) {
+        this.correo = correo;
     }
 
     public int getEdad ( ) {
@@ -35,35 +46,27 @@ public class Actor extends Usuario {
         this.edad = edad;
     }
 
-    public String getTalla ( ) {
-        return talla;
+    public String getSexo ( ) {
+        return sexo;
     }
 
-    public void setTalla ( String talla ) {
-        this.talla = talla;
+    public void setSexo ( String sexo ) {
+        this.sexo = sexo;
     }
 
-    public String getAltura ( ) {
+    public double getPeso ( ) {
+        return peso;
+    }
+
+    public void setPeso ( double peso ) {
+        this.peso = peso;
+    }
+
+    public double getAltura ( ) {
         return altura;
     }
 
-    public void setAltura ( String altura ) {
+    public void setAltura ( double altura ) {
         this.altura = altura;
-    }
-
-    public List < Reserva > getReservas ( ) {
-        return reservas;
-    }
-
-    public void setReservas ( List < Reserva > reservas ) {
-        this.reservas = reservas;
-    }
-
-    public List < Disponibilidad > getDisponibilidades ( ) {
-        return disponibilidades;
-    }
-
-    public void setDisponibilidades ( List < Disponibilidad > disponibilidades ) {
-        this.disponibilidades = disponibilidades;
     }
 }

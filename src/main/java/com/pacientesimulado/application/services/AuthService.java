@@ -1,4 +1,4 @@
-package com.pacientesimulado.application.services;
+/*package com.pacientesimulado.application.services;
 
 import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.repository.UsuarioRepository;
@@ -17,4 +17,4 @@ public class AuthService {
         }
         return null;
     }
-}
+} */

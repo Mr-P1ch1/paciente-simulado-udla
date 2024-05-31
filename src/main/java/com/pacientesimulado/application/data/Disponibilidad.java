@@ -1,61 +1,71 @@
 package com.pacientesimulado.application.data;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
-@Entity
-@Table(name = "disponibilidades")
+@Document(collection = "disponibilidad")
 public class Disponibilidad {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
+    private String actorId;
+    private LocalDate fechaInicioSemana;
+    private Map<String, Boolean> disponibilidad;
+    private Map<String, String[]> horasDisponibles; // Array de strings para representar las horas disponibles por día
 
-    @ManyToOne
-    private Actor actor;
+    public Disponibilidad() {
+        this.disponibilidad = new HashMap<>();
+        this.horasDisponibles = new HashMap<>();
+    }
 
-    private DayOfWeek dia;
-    private LocalTime horaInicio;
-    private LocalTime horaFin;
+    public Disponibilidad(LocalDate fechaInicioSemana) {
+        this();
+        this.fechaInicioSemana = fechaInicioSemana;
+    }
 
-    public Long getId ( ) {
+    // Getters y Setters
+
+    public String getId() {
         return id;
     }
 
-    public void setId ( Long id ) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Actor getActor ( ) {
-        return actor;
+    public String getActorId() {
+        return actorId;
     }
 
-    public void setActor ( Actor actor ) {
-        this.actor = actor;
+    public void setActorId(String actorId) {
+        this.actorId = actorId;
     }
 
-    public DayOfWeek getDia ( ) {
-        return dia;
+    public LocalDate getFechaInicioSemana() {
+        return fechaInicioSemana;
     }
 
-    public void setDia ( DayOfWeek dia ) {
-        this.dia = dia;
+    public void setFechaInicioSemana(LocalDate fechaInicioSemana) {
+        this.fechaInicioSemana = fechaInicioSemana;
     }
 
-    public LocalTime getHoraInicio ( ) {
-        return horaInicio;
+    public Boolean isDisponible(String dia) {
+        return disponibilidad.getOrDefault(dia, false);
     }
 
-    public void setHoraInicio ( LocalTime horaInicio ) {
-        this.horaInicio = horaInicio;
+    public void setDisponible(String dia, Boolean disponible) {
+        disponibilidad.put(dia, disponible);
     }
 
-    public LocalTime getHoraFin ( ) {
-        return horaFin;
+    public String[] getHorasDisponibles(String dia) {
+        return horasDisponibles.getOrDefault(dia, new String[]{});
     }
 
-    public void setHoraFin ( LocalTime horaFin ) {
-        this.horaFin = horaFin;
+    public void setHorasDisponibles(String dia, String[] horas) {
+        horasDisponibles.put(dia, horas);
     }
 }

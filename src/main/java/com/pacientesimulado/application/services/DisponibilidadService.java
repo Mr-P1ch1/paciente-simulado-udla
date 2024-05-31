@@ -1,9 +1,7 @@
 package com.pacientesimulado.application.services;
 
 import com.pacientesimulado.application.data.Disponibilidad;
-import com.pacientesimulado.application.data.Actor;
 import com.pacientesimulado.application.repository.DisponibilidadRepository;
-import com.pacientesimulado.application.repository.ActorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,19 +9,27 @@ import java.util.List;
 
 @Service
 public class DisponibilidadService {
-    @Autowired
-    private DisponibilidadRepository disponibilidadRepository;
+
+    private final DisponibilidadRepository disponibilidadRepository;
 
     @Autowired
-    private ActorRepository actorRepository;
-
-    public List<Disponibilidad> actualizarDisponibilidad(Long actorId, List<Disponibilidad> disponibilidades) {
-        Actor actor = actorRepository.findById(actorId).orElseThrow(() -> new RuntimeException("Actor no encontrado"));
-        disponibilidades.forEach(d -> d.setActor(actor));
-        return disponibilidadRepository.saveAll(disponibilidades);
+    public DisponibilidadService(DisponibilidadRepository disponibilidadRepository) {
+        this.disponibilidadRepository = disponibilidadRepository;
     }
 
-    public List<Disponibilidad> obtenerDisponibilidades(Long actorId) {
+    public List<Disponibilidad> obtenerPorActorId(String actorId) {
+        return disponibilidadRepository.findByActorId(actorId);
+    }
+
+    public Disponibilidad guardarDisponibilidad(Disponibilidad disponibilidad) {
+        return disponibilidadRepository.save(disponibilidad);
+    }
+
+    public void eliminarDisponibilidad(String id) {
+        disponibilidadRepository.deleteById(id);
+    }
+
+    public List< Disponibilidad> obtenerDisponibilidadesPorActorId ( String actorId ) {
         return disponibilidadRepository.findByActorId(actorId);
     }
 }

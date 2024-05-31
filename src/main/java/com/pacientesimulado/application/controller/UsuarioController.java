@@ -1,32 +1,35 @@
 package com.pacientesimulado.application.controller;
 
-import com.pacientesimulado.application.data.Usuario;
-import com.pacientesimulado.application.services.UsuarioService;
+import com.pacientesimulado.application.data.Disponibilidad;
+import com.pacientesimulado.application.services.DisponibilidadService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 public class UsuarioController {
+
+    private final DisponibilidadService disponibilidadService;
+
     @Autowired
-    private UsuarioService usuarioService;
-
-    @PostMapping("/registro")
-    public ResponseEntity<Usuario> registrarUsuario(@RequestBody Usuario usuario) {
-        Usuario nuevoUsuario = usuarioService.registrarUsuario(usuario);
-        return ResponseEntity.ok(nuevoUsuario);
+    public UsuarioController(DisponibilidadService disponibilidadService) {
+        this.disponibilidadService = disponibilidadService;
     }
 
-    @PutMapping("/actualizar/{id}")
-    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-        Usuario usuarioActualizado = usuarioService.actualizarUsuario(id, usuario);
-        return ResponseEntity.ok(usuarioActualizado);
+    @GetMapping("/{actorId}/disponibilidad")
+    public List<Disponibilidad> obtenerDisponibilidadPorActorId(@PathVariable String actorId) {
+        return disponibilidadService.obtenerPorActorId(actorId);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuario(@PathVariable Long id) {
-        Usuario usuario = usuarioService.obtenerUsuario(id);
-        return ResponseEntity.ok(usuario);
+    @PostMapping("/disponibilidad")
+    public Disponibilidad guardarDisponibilidad(@RequestBody Disponibilidad disponibilidad) {
+        return disponibilidadService.guardarDisponibilidad(disponibilidad);
+    }
+
+    @DeleteMapping("/disponibilidad/{id}")
+    public void eliminarDisponibilidad(@PathVariable String id) {
+        disponibilidadService.eliminarDisponibilidad(id);
     }
 }

@@ -1,6 +1,5 @@
-package com.pacientesimulado.application.views.login;
+/*package com.pacientesimulado.application.views.login;
 
-import com.pacientesimulado.application.security.AuthenticatedUser;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -11,7 +10,6 @@ import com.vaadin.flow.router.internal.RouteUtil;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @AnonymousAllowed
 @PageTitle("Login")
@@ -48,4 +46,5 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
         setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
     }
 }
+*/
 

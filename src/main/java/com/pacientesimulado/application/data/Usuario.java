@@ -1,56 +1,55 @@
 package com.pacientesimulado.application.data;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "usuarios")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Document(collection = "usuarios")
 public class Usuario {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private String nombre;
     private String correo;
     private String contraseña;
-    private String rol; // doctor, actor, administrador
+    private String rol; // Valores posibles: doctor, actor, administrador
 
-    public Long getId ( ) {
+    // Getters y Setters
+    public String getId() {
         return id;
     }
 
-    public void setId ( Long id ) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getNombre ( ) {
+    public String getNombre() {
         return nombre;
     }
 
-    public void setNombre ( String nombre ) {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public String getCorreo ( ) {
+    public String getCorreo() {
         return correo;
     }
 
-    public void setCorreo ( String correo ) {
+    public void setCorreo(String correo) {
         this.correo = correo;
     }
 
-    public String getContraseña ( ) {
+    public String getContraseña() {
         return contraseña;
     }
 
-    public void setContraseña ( String contraseña ) {
+    public void setContraseña(String contraseña) {
         this.contraseña = contraseña;
     }
 
-    public String getRol ( ) {
+    public String getRol() {
         return rol;
     }
 
-    public void setRol ( String rol ) {
+    public void setRol(String rol) {
         this.rol = rol;
     }
 }
