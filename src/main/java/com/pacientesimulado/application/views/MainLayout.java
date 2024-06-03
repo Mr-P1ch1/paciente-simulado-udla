@@ -1,6 +1,5 @@
 package com.pacientesimulado.application.views;
-
-import com.pacientesimulado.application.views.disponibilidadsemanadeclases.DisponibilidadsemanadeClasesView;
+import com.pacientesimulado.application.views.disponibilidadsemanadeclases.DisponibilidadSemanaDeClasesView;
 import com.pacientesimulado.application.views.gestionmaterias.GestionMateriasView;
 import com.pacientesimulado.application.views.gestionusuarios.GestionUsuariosView;
 import com.pacientesimulado.application.views.personform.PersonFormView;
@@ -35,7 +34,7 @@ public class MainLayout extends AppLayout {
 
     private void createDrawer() {
         addToDrawer(new RouterLink("Actualizar Datos del Actor", PersonFormView.class));
-        addToDrawer(new RouterLink("Disponibilidad Semana de Clases", DisponibilidadsemanadeClasesView.class));
+        addToDrawer(new RouterLink("Disponibilidad Semana de Clases", DisponibilidadSemanaDeClasesView.class));
         addToDrawer(new RouterLink("Gestión de Usuarios", GestionUsuariosView.class));
         addToDrawer(new RouterLink("Reserva Programa Paciente Simulado (ACTOR)", ReservaProgramaPacienteSimuladoACTORView.class));
         addToDrawer(new RouterLink("Gestión de Materias", GestionMateriasView.class));
