@@ -10,7 +10,7 @@ public class Usuario {
     private String nombre;
     private String correo;
     private String contraseña;
-    private String rol; // Valores posibles: doctor, actor, administrador
+    private String rol;
 
     // Getters y Setters
     public String getId() {

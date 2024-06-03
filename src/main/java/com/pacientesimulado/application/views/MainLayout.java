@@ -5,7 +5,7 @@ import com.pacientesimulado.application.views.gestionmaterias.GestionMateriasVie
 import com.pacientesimulado.application.views.gestionusuarios.GestionUsuariosView;
 import com.pacientesimulado.application.views.personform.PersonFormView;
 import com.pacientesimulado.application.views.reservaprogramapacientesimuladoactor.ReservaProgramaPacienteSimuladoACTORView;
-//import com.pacientesimulado.application.views.solicitudesdereserva.SolicitudesdereservaView;
+import com.pacientesimulado.application.views.solicitudesdereserva.SolicitudesdereservaView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -39,6 +39,6 @@ public class MainLayout extends AppLayout {
         addToDrawer(new RouterLink("Gestión de Usuarios", GestionUsuariosView.class));
         addToDrawer(new RouterLink("Reserva Programa Paciente Simulado (ACTOR)", ReservaProgramaPacienteSimuladoACTORView.class));
         addToDrawer(new RouterLink("Gestión de Materias", GestionMateriasView.class));
-        // addToDrawer(new RouterLink("Solicitudes de Reserva", SolicitudesdereservaView.class));
+        addToDrawer(new RouterLink("Solicitudes de Reserva", SolicitudesdereservaView.class));
     }
 }

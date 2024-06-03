@@ -1,3 +1,4 @@
+
 package com.pacientesimulado.application.controller;
 
 import com.pacientesimulado.application.data.Actor;
@@ -6,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+        import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -49,3 +50,4 @@ public class ActorController {
         actorService.eliminarActor(id);
     }
 }
+

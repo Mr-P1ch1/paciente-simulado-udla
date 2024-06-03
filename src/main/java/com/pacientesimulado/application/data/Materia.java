@@ -8,11 +8,10 @@ import java.util.Map;
 
 @Document(collection = "materias")
 public class Materia {
-
     @Id
     private String id;
     private String carrera;
-    private Map<String, List<String>> tiposYCasos; // Map con tipo como clave y lista de casos como valor
+    private Map<String, List<String>> tiposYCasos;
 
     public Materia() {
     }

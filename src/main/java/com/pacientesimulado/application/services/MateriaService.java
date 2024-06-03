@@ -18,27 +18,26 @@ public class MateriaService {
     @Autowired
     private MateriaRepository materiaRepository;
 
-    public List < Materia > obtenerMateriasPorCarrera ( String carrera ) {
-        return materiaRepository.findByCarrera ( carrera );
+    public List<Materia> obtenerMateriasPorCarrera(String carrera) {
+        return materiaRepository.findByCarrera(carrera);
     }
 
-    public Materia guardarMateria ( Materia materia ) {
-        return materiaRepository.save ( materia );
+    public Materia guardarMateria(Materia materia) {
+        return materiaRepository.save(materia);
     }
 
-    public void eliminarMateria ( String id ) {
-        materiaRepository.deleteById ( id );
+    public void eliminarMateria(String id) {
+        materiaRepository.deleteById(id);
     }
 
-    public List < String > obtenerTodasLasCarreras ( ) {
-        return materiaRepository.findAll ( ).stream ( )
-                .map ( Materia :: getCarrera )
-                .distinct ( )
-                .collect ( Collectors.toList ( ) );
+    public List<String> obtenerTodasLasCarreras() {
+        return materiaRepository.findAll().stream()
+                .map(Materia::getCarrera)
+                .distinct()
+                .collect(Collectors.toList());
     }
+
     public List<Materia> obtenerTodasLasMaterias() {
         return materiaRepository.findAll();
     }
-
-
 }

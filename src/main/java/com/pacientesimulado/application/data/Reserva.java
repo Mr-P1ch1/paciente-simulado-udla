@@ -24,127 +24,143 @@ public class Reserva {
     private Map<String, Boolean> disponible;
     private Map<String, String[]> horasReserva;
     private List<Paciente> pacientes;
-    private String estado; // Nuevo campo para el estado
+    private String estado;
+    private List<Actor> actoresAsignados; // Nueva lista para almacenar actores asignados
 
+    // Constructores, getters y setters
     public Reserva(String correoDoctor, String carrera, String tipo, String caso) {
         this.correoDoctor = correoDoctor;
         this.carrera = carrera;
         this.tipo = tipo;
         this.caso = caso;
-        this.estado = "pendiente"; // Estado por defecto
+        this.estado = "pendiente";
     }
 
-    // Getters y Setters
-
-    public String getEstado() {
-        return estado;
+    public String getId ( ) {
+        return id;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setId ( String id ) {
+        this.id = id;
     }
 
-    public String getCorreoDoctor() {
+    public String getCorreoDoctor ( ) {
         return correoDoctor;
     }
 
-    public void setCorreoDoctor(String correoDoctor) {
+    public void setCorreoDoctor ( String correoDoctor ) {
         this.correoDoctor = correoDoctor;
     }
 
-    public String getCarrera() {
+    public String getCarrera ( ) {
         return carrera;
     }
 
-    public void setCarrera(String carrera) {
+    public void setCarrera ( String carrera ) {
         this.carrera = carrera;
     }
 
-    public String getTipo() {
+    public String getTipo ( ) {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo ( String tipo ) {
         this.tipo = tipo;
     }
 
-    public String getCaso() {
+    public String getCaso ( ) {
         return caso;
     }
 
-    public void setCaso(String caso) {
+    public void setCaso ( String caso ) {
         this.caso = caso;
     }
 
-    public String getActividad() {
+    public String getActividad ( ) {
         return actividad;
     }
 
-    public void setActividad(String actividad) {
+    public void setActividad ( String actividad ) {
         this.actividad = actividad;
     }
 
-    public Integer getNumeroPacientes() {
+    public Integer getNumeroPacientes ( ) {
         return numeroPacientes;
     }
 
-    public void setNumeroPacientes(Integer numeroPacientes) {
+    public void setNumeroPacientes ( Integer numeroPacientes ) {
         this.numeroPacientes = numeroPacientes;
     }
 
-    public String getFormaRequerimiento() {
+    public String getFormaRequerimiento ( ) {
         return formaRequerimiento;
     }
 
-    public void setFormaRequerimiento(String formaRequerimiento) {
+    public void setFormaRequerimiento ( String formaRequerimiento ) {
         this.formaRequerimiento = formaRequerimiento;
     }
 
-    public LocalDate getFechaEntrenamiento() {
+    public LocalDate getFechaEntrenamiento ( ) {
         return fechaEntrenamiento;
     }
 
-    public void setFechaEntrenamiento(LocalDate fechaEntrenamiento) {
+    public void setFechaEntrenamiento ( LocalDate fechaEntrenamiento ) {
         this.fechaEntrenamiento = fechaEntrenamiento;
     }
 
-    public String[] getHorasEntrenamiento() {
+    public String[] getHorasEntrenamiento ( ) {
         return horasEntrenamiento;
     }
 
-    public void setHorasEntrenamiento(String[] horasEntrenamiento) {
+    public void setHorasEntrenamiento ( String[] horasEntrenamiento ) {
         this.horasEntrenamiento = horasEntrenamiento;
     }
 
-    public LocalDate getFechaInicioSemana() {
+    public LocalDate getFechaInicioSemana ( ) {
         return fechaInicioSemana;
     }
 
-    public void setFechaInicioSemana(LocalDate fechaInicioSemana) {
+    public void setFechaInicioSemana ( LocalDate fechaInicioSemana ) {
         this.fechaInicioSemana = fechaInicioSemana;
     }
 
-    public Map<String, Boolean> getDisponible() {
+    public Map < String, Boolean > getDisponible ( ) {
         return disponible;
     }
 
-    public void setDisponible(Map<String, Boolean> disponible) {
+    public void setDisponible ( Map < String, Boolean > disponible ) {
         this.disponible = disponible;
     }
 
-    public Map<String, String[]> getHorasReserva() {
+    public Map < String, String[] > getHorasReserva ( ) {
         return horasReserva;
     }
 
-    public void setHorasReserva(Map<String, String[]> horasReserva) {
+    public void setHorasReserva ( Map < String, String[] > horasReserva ) {
         this.horasReserva = horasReserva;
     }
 
-    public List<Paciente> getPacientes() {
+    public List < Paciente > getPacientes ( ) {
         return pacientes;
     }
 
-    public void setPacientes(List<Paciente> pacientes) {
+    public void setPacientes ( List < Paciente > pacientes ) {
         this.pacientes = pacientes;
+    }
+
+    public String getEstado ( ) {
+        return estado;
+    }
+
+    public void setEstado ( String estado ) {
+        this.estado = estado;
+    }
+
+    public List<Actor> getActoresAsignados() {
+        return actoresAsignados;
+    }
+
+    public void setActoresAsignados(List<Actor> actoresAsignados) {
+        this.actoresAsignados = actoresAsignados;
     }
 }

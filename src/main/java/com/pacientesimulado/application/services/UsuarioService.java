@@ -18,9 +18,6 @@ public class UsuarioService {
         if (usuarioRepository.findByCorreo(usuario.getCorreo()).isPresent()) {
             throw new RuntimeException("El correo ya está en uso");
         }
-        if (!"Doctor".equalsIgnoreCase(usuario.getRol())) {
-            throw new RuntimeException("Solo los usuarios con rol de 'Doctor' pueden registrarse");
-        }
         return usuarioRepository.save(usuario);
     }
 

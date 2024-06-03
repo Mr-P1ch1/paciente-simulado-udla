@@ -9,13 +9,12 @@ import java.util.Map;
 
 @Document(collection = "disponibilidad")
 public class Disponibilidad {
-
     @Id
     private String id;
     private String actorId;
     private LocalDate fechaInicioSemana;
     private Map<String, Boolean> disponibilidad;
-    private Map<String, String[]> horasDisponibles; // Array de strings para representar las horas disponibles por día
+    private Map<String, String[]> horasDisponibles;
 
     public Disponibilidad() {
         this.disponibilidad = new HashMap<>();
@@ -28,7 +27,6 @@ public class Disponibilidad {
     }
 
     // Getters y Setters
-
     public String getId() {
         return id;
     }

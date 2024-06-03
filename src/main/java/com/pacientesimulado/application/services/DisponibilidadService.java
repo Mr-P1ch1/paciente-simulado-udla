@@ -29,7 +29,7 @@ public class DisponibilidadService {
         disponibilidadRepository.deleteById(id);
     }
 
-    public List< Disponibilidad> obtenerDisponibilidadesPorActorId ( String actorId ) {
+    public List<Disponibilidad> obtenerDisponibilidadesPorActorId(String actorId) {
         return disponibilidadRepository.findByActorId(actorId);
     }
 }

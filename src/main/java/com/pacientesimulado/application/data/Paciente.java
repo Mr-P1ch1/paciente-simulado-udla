@@ -15,6 +15,7 @@ public class Paciente {
         this.detalleMoulage = detalleMoulage;
     }
 
+    // Getters y Setters
     public String getGenero() {
         return genero;
     }

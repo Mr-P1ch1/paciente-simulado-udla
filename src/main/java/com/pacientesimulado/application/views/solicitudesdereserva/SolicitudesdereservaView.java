@@ -1,4 +1,4 @@
-/*package com.pacientesimulado.application.views.solicitudesdereserva;
+package com.pacientesimulado.application.views.solicitudesdereserva;
 
 import com.pacientesimulado.application.data.Actor;
 import com.pacientesimulado.application.data.Reserva;
@@ -9,18 +9,17 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
@@ -32,21 +31,15 @@ import java.util.List;
 @AnonymousAllowed
 public class SolicitudesdereservaView extends VerticalLayout {
 
-    private static final Logger logger = LoggerFactory.getLogger(SolicitudesdereservaView.class);
-
     private final ReservaService reservaService;
     private final ActorService actorService;
     private final Grid<Reserva> grid;
-    private final Binder <Reserva> binder;
 
     @Autowired
     public SolicitudesdereservaView(ReservaService reservaService, ActorService actorService) {
         this.reservaService = reservaService;
         this.actorService = actorService;
         this.grid = new Grid<>(Reserva.class);
-        this.binder = new Binder<>(Reserva.class);
-
-        logger.info("Inicializando SolicitudesdereservaView");
 
         configureGrid();
         add(grid);
@@ -55,60 +48,89 @@ public class SolicitudesdereservaView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_COLUMN_BORDERS);
-        grid.setHeight("100%");
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_ROW_STRIPES);
+        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
-        grid.addColumn(Reserva::getCorreoDoctor).setHeader("Correo Doctor");
-        grid.addColumn(Reserva::getCarrera).setHeader("Carrera");
-        grid.addColumn(Reserva::getTipo).setHeader("Tipo");
-        grid.addColumn(Reserva::getCaso).setHeader("Caso");
-        grid.addColumn(Reserva::getActividad).setHeader("Actividad");
-        grid.addColumn(Reserva::getNumeroPacientes).setHeader("Número de Pacientes");
-        grid.addColumn(Reserva::getFormaRequerimiento).setHeader("Forma de Requerimiento");
+        grid.addColumn(Reserva::getEstado).setHeader("Estado").setSortable(true).setAutoWidth(true);
+        grid.addColumn(reserva -> {
+            LocalDate fechaSimulacion = reserva.getFechaInicioSemana();
+            return (fechaSimulacion != null) ? fechaSimulacion.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+        }).setHeader("Fecha de Práctica").setSortable(true).setAutoWidth(true);
         grid.addColumn(reserva -> {
             LocalDate fechaEntrenamiento = reserva.getFechaEntrenamiento();
             return (fechaEntrenamiento != null) ? fechaEntrenamiento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-        }).setHeader("Fecha de Entrenamiento");
-        grid.addColumn(reserva -> {
-            LocalDate fechaInicioSemana = reserva.getFechaInicioSemana();
-            return (fechaInicioSemana != null) ? fechaInicioSemana.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-        }).setHeader("Fecha de Inicio de Semana");
-        grid.addColumn(reserva -> reserva.getHorasReserva() != null ? reserva.getHorasReserva().toString() : "").setHeader("Horas Reserva");
-        grid.addColumn(Reserva::getEstado).setHeader("Estado");
+        }).setHeader("Fecha de Capacitación").setSortable(true).setAutoWidth(true);
+        grid.addColumn(Reserva::getCarrera).setHeader("Carrera").setSortable(true).setAutoWidth(true);
+        grid.addColumn(Reserva::getCorreoDoctor).setHeader("Correo del Doctor").setSortable(true).setAutoWidth(true);
 
-        grid.addComponentColumn(reserva -> {
-            Button assignButton = new Button("Asignar Actor");
-            assignButton.addClickListener(click -> showAssignDialog(reserva));
-            return assignButton;
-        }).setHeader("Acciones");
-
-        grid.setHeightFull();
+        grid.addItemClickListener(event -> showDetailsDialog(event.getItem()));
     }
 
     private void listReservas() {
-        try {
-            logger.info("Listando reservas");
-            List<Reserva> reservas = reservaService.obtenerTodasLasReservas();
-            if (reservas != null && !reservas.isEmpty()) {
-                grid.setItems(reservas);
-                logger.info("Reservas cargadas correctamente: " + reservas.size());
-                Notification.show("Reservas cargadas correctamente: " + reservas.size());
-            } else {
-                Notification.show("No se encontraron reservas.");
-                logger.warn("No se encontraron reservas en la base de datos.");
-            }
-        } catch (Exception e) {
-            Notification.show("Error al cargar las reservas.");
-            logger.error("Error al cargar las reservas: ", e);
+        List<Reserva> reservas = reservaService.obtenerTodasLasReservas();
+        if (reservas != null && !reservas.isEmpty()) {
+            grid.setItems(reservas);
+            Notification.show("Reservas cargadas correctamente: " + reservas.size());
+        } else {
+            Notification.show("No se encontraron reservas.");
         }
     }
 
-    private void showAssignDialog(Reserva reserva) {
+    private void showDetailsDialog(Reserva reserva) {
+        Dialog dialog = new Dialog();
+        dialog.setWidth("600px");
+
+        VerticalLayout dialogLayout = new VerticalLayout();
+        dialogLayout.setPadding(true);
+        dialogLayout.setSpacing(true);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+        Span estadoLabel = new Span("Estado: " + reserva.getEstado());
+        Span carreraLabel = new Span("Materia: " + reserva.getCarrera());
+        Span tipoLabel = new Span("Tipo: " + reserva.getTipo());
+        Span casoLabel = new Span("Caso: " + reserva.getCaso());
+        Span actividadLabel = new Span("Actividad: " + reserva.getActividad());
+        Span fechaSimulacionLabel = new Span("Fecha de Simulación: " + (reserva.getFechaInicioSemana() != null ? reserva.getFechaInicioSemana().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : ""));
+        Span numeroActoresLabel = new Span("Número de Actores: " + reserva.getNumeroPacientes());
+        Span correoDoctorLabel = new Span("Correo Doctor: " + reserva.getCorreoDoctor());
+
+        ComboBox<String> estadoComboBox = new ComboBox<>("Cambiar Estado");
+        estadoComboBox.setItems("pendiente", "asignado", "completado");
+        estadoComboBox.setValue(reserva.getEstado());
+
+        Button saveEstadoButton = new Button("Guardar Estado");
+        saveEstadoButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveEstadoButton.addClickListener(event -> {
+            reserva.setEstado(estadoComboBox.getValue());
+            reservaService.guardarReserva(reserva);
+            Notification.show("Estado actualizado a " + estadoComboBox.getValue());
+            dialog.close();
+            listReservas();
+        });
+
+        VerticalLayout actoresLayout = new VerticalLayout();
+        actoresLayout.setSpacing(true);
+        for (int i = 1; i <= reserva.getNumeroPacientes(); i++) {
+            final int actorIndex = i;
+            Button asignarActorButton = new Button("Seleccionar Actor " + i);
+            asignarActorButton.addClickListener(click -> showAssignActorDialog(reserva, actorIndex));
+            actoresLayout.add(asignarActorButton);
+        }
+
+        dialogLayout.add(estadoLabel, carreraLabel, tipoLabel, casoLabel, actividadLabel, fechaSimulacionLabel, numeroActoresLabel, correoDoctorLabel, estadoComboBox, saveEstadoButton, actoresLayout);
+        dialog.add(dialogLayout);
+        dialog.open();
+    }
+
+    private void showAssignActorDialog(Reserva reserva, int actorIndex) {
         Dialog dialog = new Dialog();
         dialog.setWidth("400px");
 
-        FormLayout formLayout = new FormLayout();
+        VerticalLayout dialogLayout = new VerticalLayout();
+        dialogLayout.setPadding(true);
+        dialogLayout.setSpacing(true);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+
         ComboBox<Actor> actorComboBox = new ComboBox<>("Seleccione Actor");
         actorComboBox.setItems(actorService.obtenerTodosLosActores());
         actorComboBox.setItemLabelGenerator(Actor::getNombre);
@@ -117,10 +139,11 @@ public class SolicitudesdereservaView extends VerticalLayout {
         assignButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         assignButton.addClickListener(event -> {
             if (actorComboBox.getValue() != null) {
-                // Asignar el actor seleccionado a la reserva
-                reserva.setEstado("asignado");
-                reservaService.guardarReserva(reserva);
-                Notification.show("Actor asignado correctamente.");
+                // Asignar el actor seleccionado a la reserva y actualizar el estado
+                Actor actorSeleccionado = actorComboBox.getValue();
+                reservaService.asignarActor(reserva, actorSeleccionado);
+
+                Notification.show("Actor " + actorIndex + " asignado correctamente.");
                 dialog.close();
                 listReservas();
             } else {
@@ -130,9 +153,8 @@ public class SolicitudesdereservaView extends VerticalLayout {
 
         Button cancelButton = new Button("Cancelar", event -> dialog.close());
 
-        formLayout.add(actorComboBox, new HorizontalLayout(assignButton, cancelButton));
-        dialog.add(formLayout);
+        dialogLayout.add(new Span("Asignar Actor a la Reserva"), actorComboBox, new HorizontalLayout(assignButton, cancelButton));
+        dialog.add(dialogLayout);
         dialog.open();
     }
 }
-*/

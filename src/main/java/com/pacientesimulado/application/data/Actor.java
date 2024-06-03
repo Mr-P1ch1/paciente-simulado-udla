@@ -14,59 +14,60 @@ public class Actor {
     private double peso;
     private double altura;
 
-    public String getId ( ) {
+    // Getters y Setters
+    public String getId() {
         return id;
     }
 
-    public void setId ( String id ) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getNombre ( ) {
+    public String getNombre() {
         return nombre;
     }
 
-    public void setNombre ( String nombre ) {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public String getCorreo ( ) {
+    public String getCorreo() {
         return correo;
     }
 
-    public void setCorreo ( String correo ) {
+    public void setCorreo(String correo) {
         this.correo = correo;
     }
 
-    public int getEdad ( ) {
+    public int getEdad() {
         return edad;
     }
 
-    public void setEdad ( int edad ) {
+    public void setEdad(int edad) {
         this.edad = edad;
     }
 
-    public String getSexo ( ) {
+    public String getSexo() {
         return sexo;
     }
 
-    public void setSexo ( String sexo ) {
+    public void setSexo(String sexo) {
         this.sexo = sexo;
     }
 
-    public double getPeso ( ) {
+    public double getPeso() {
         return peso;
     }
 
-    public void setPeso ( double peso ) {
+    public void setPeso(double peso) {
         this.peso = peso;
     }
 
-    public double getAltura ( ) {
+    public double getAltura() {
         return altura;
     }
 
-    public void setAltura ( double altura ) {
+    public void setAltura(double altura) {
         this.altura = altura;
     }
 }
