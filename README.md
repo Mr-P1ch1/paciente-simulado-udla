@@ -5,5 +5,5 @@ Funciones validas
 - Actualizacion datos paciente
 - Disponibilidad horario actor (Pendiente Actaulizacion)
 - Reserva Paciente
-- Gestion Solicitudes de reserva
+- Gestion Solicitudes de reserva (Pendiente Actaulizacion)
 - Conexicion a mango db realizada
