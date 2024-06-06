@@ -6,6 +6,7 @@ import com.pacientesimulado.application.services.ActorService;
 import com.pacientesimulado.application.services.UsuarioService;
 import com.pacientesimulado.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -22,9 +23,11 @@ import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PageTitle("Gestión de Usuarios")
@@ -48,23 +51,45 @@ public class GestionUsuariosView extends VerticalLayout {
         configureForm();
 
         Button addButton = new Button("Añadir Usuario", e -> showFormDialog(new Usuario()));
+        addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        add(grid, addButton);
+        Button deleteSelectedButton = new Button("Eliminar Seleccionados");
+        deleteSelectedButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        deleteSelectedButton.addClickListener(event -> {
+            grid.getSelectedItems().forEach(usuario -> {
+                usuarioService.eliminarUsuario(usuario.getId());
+            });
+            listUsuarios();
+            Notification.show("Usuarios eliminados exitosamente");
+        });
+
+        add(grid, new HorizontalLayout(addButton, deleteSelectedButton));
         listUsuarios();
     }
 
     private void configureGrid() {
-        grid.setColumns("nombre", "correo", "rol");
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            usuarioSeleccionado = event.getValue();
-            if (usuarioSeleccionado != null) {
-                showFormDialog(usuarioSeleccionado);
-            }
-        });
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.setColumns("nombre", "apellido", "correo", "rol");
+
+        grid.addColumn(new ComponentRenderer<>(usuario -> {
+            Button editButton = new Button("Editar");
+            editButton.addClickListener(event -> showFormDialog(usuario));
+            return editButton;
+        })).setHeader("Editar");
+
+        grid.addColumn(new ComponentRenderer<>(usuario -> {
+            Button deleteButton = new Button("Eliminar");
+            deleteButton.addClickListener(event -> {
+                usuarioService.eliminarUsuario(usuario.getId());
+                listUsuarios();
+            });
+            return deleteButton;
+        })).setHeader("Eliminar");
     }
 
     private void configureForm() {
-        binder = new Binder<>(Usuario.class);
+        // No es necesario volver a asignar el binder aquí
     }
 
     private void showFormDialog(Usuario usuario) {
@@ -72,7 +97,12 @@ public class GestionUsuariosView extends VerticalLayout {
         FormLayout formLayout = new FormLayout();
 
         TextField nombre = new TextField("Nombre");
+        TextField apellido = new TextField("Apellido");
         EmailField correo = new EmailField("Correo");
+        correo.setWidthFull();
+        correo.setErrorMessage("Por favor, ingrese un correo válido.");
+        correo.setPattern("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}");
+
         PasswordField contraseña = new PasswordField("Contraseña");
         ComboBox<String> rol = new ComboBox<>("Rol");
         rol.setItems("Actor", "Doctor", "Administrador");
@@ -85,6 +115,7 @@ public class GestionUsuariosView extends VerticalLayout {
         NumberField altura = new NumberField("Altura");
 
         binder.forField(nombre).asRequired("Nombre es requerido").bind(Usuario::getNombre, Usuario::setNombre);
+        binder.forField(apellido).asRequired("Apellido es requerido").bind(Usuario::getApellido, Usuario::setApellido);
         binder.forField(correo)
                 .withValidator(new EmailValidator("Correo inválido"))
                 .asRequired("Correo es requerido")
@@ -119,7 +150,7 @@ public class GestionUsuariosView extends VerticalLayout {
 
         binder.readBean(usuario);
 
-        formLayout.add(nombre, correo, contraseña, rol);
+        formLayout.add(nombre, apellido, correo, contraseña, rol);
 
         rol.addValueChangeListener(event -> {
             if ("Actor".equals(event.getValue())) {
@@ -181,8 +212,7 @@ public class GestionUsuariosView extends VerticalLayout {
                 listUsuarios();
             } catch (ValidationException e) {
                 Notification.show("Error al guardar usuario: " + e.getValidationErrors().stream()
-                        .map(error -> error.getErrorMessage())
-                        .reduce("", (a, b) -> a + "\n" + b));
+                        .map(error -> error.getErrorMessage()).reduce((s1, s2) -> s1 + ", " + s2).orElse(""));
             } catch (Exception e) {
                 Notification.show("Error al guardar usuario: " + e.getMessage());
             }
@@ -212,4 +242,3 @@ public class GestionUsuariosView extends VerticalLayout {
         }
     }
 }
-

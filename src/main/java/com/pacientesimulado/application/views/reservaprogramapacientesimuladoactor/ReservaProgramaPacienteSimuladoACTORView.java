@@ -13,45 +13,44 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @PageTitle("Reserva Programa Paciente Simulado (ACTOR)")
 @Route(value = "reserva-programa-paciente-simulado-actor", layout = MainLayout.class)
-@AnonymousAllowed
 public class ReservaProgramaPacienteSimuladoACTORView extends Composite<VerticalLayout> {
 
     private final UsuarioService usuarioService;
     private final MateriaService materiaService;
     private final ReservaService reservaService;
-    private EmailField emailField;
-    private Button validateButton;
     private VerticalLayout mainLayout;
     private LocalDate fechaSeleccionada;
-    private DatePicker datePicker;
-    private Button colocarDisponibilidadButton;
     private Map<String, Map<String, Checkbox>> disponibilidadMap;
     private ComboBox<String> comboBoxActividad;
     private ComboBox<Integer> comboBoxNumeroPacientes;
     private ComboBox<String> comboBoxRequerimiento;
     private DatePicker fechaEntrenamiento;
-    private ComboBox<String> horarioEntrenamiento;
+    private MultiSelectComboBox<String> horarioEntrenamiento;
+    private VerticalLayout datesLayoutSimulado;
+    private Map<LocalDate, List<String>> disponibilidadSimulado = new HashMap<>();
+    private Paragraph welcomeMessage = new Paragraph();
+    private LocalDate fechaSeccion; // Nuevo campo para la fecha de la sección de paciente simulado
+    private List<String> horasSeccion = new ArrayList<>(); // Nuevo campo para las horas de la sección de paciente simulado
 
     @Autowired
     public ReservaProgramaPacienteSimuladoACTORView(UsuarioService usuarioService, MateriaService materiaService, ReservaService reservaService) {
@@ -59,153 +58,89 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         this.materiaService = materiaService;
         this.reservaService = reservaService;
 
-        emailField = new EmailField("Correo electrónico");
-        emailField.setWidth("300px");
-        validateButton = new Button("Validar");
-        validateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        disponibilidadMap = new HashMap<>();
+
+        Usuario currentUser = VaadinSession.getCurrent().getAttribute(Usuario.class);
+
+        getContent().add(new H2("Reserva Programa Paciente Simulado (ACTOR)"));
+        welcomeMessage.setText("Bienvenido, " + currentUser.getNombre() + " " + currentUser.getApellido() + ". Crea tu solicitud.");
+        getContent().add(welcomeMessage);
 
         mainLayout = new VerticalLayout();
-        mainLayout.setWidth("100%");
+        getContent().add(mainLayout);
 
-        validateButton.addClickListener(event -> validateDoctorEmail());
-
-        getContent().add(new Paragraph("Ingrese su correo para continuar:"));
-        getContent().add(emailField, validateButton, mainLayout);
-    }
-
-    private void validateDoctorEmail() {
-        String email = emailField.getValue();
-        Optional<Usuario> usuarioOptional = usuarioService.findByCorreo(email);
-
-        if (usuarioOptional.isPresent() && "Doctor".equalsIgnoreCase(usuarioOptional.get().getRol())) {
-            showWelcomeMessage(usuarioOptional.get().getNombre());
-            showForm(email);
-        } else {
-            Notification.show("Acceso denegado. Solo los doctores pueden acceder a esta vista.");
-        }
-    }
-
-    private void showWelcomeMessage(String doctorName) {
-        Notification.show("Bienvenido, " + doctorName);
+        showForm(currentUser.getCorreo());
     }
 
     private void showForm(String correoDoctor) {
         mainLayout.removeAll();
 
+        // Conozca su caso
         Paragraph textSmall = new Paragraph("Si necesita consultar el caso que requiere antes de llenar el formulario por favor de click en el siguiente Link para que pueda revisarlo.");
         textSmall.setWidth("100%");
         textSmall.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-
         Anchor link = new Anchor("https://udlaec-my.sharepoint.com/:f:/g/personal/rocio_paredes_udla_edu_ec/EojckZ4-1wdIhAYnTu6HYf4B-BJwp_aYFdc_p58HG11-Qw?e=efvbdR", "Consultar casos");
         link.setWidth("100%");
+        mainLayout.add(textSmall, link);
 
+        // Selección de Carrera, Tipo y Caso
         ComboBox<String> carreraComboBox = new ComboBox<>("Seleccione la carrera");
         ComboBox<String> tipoComboBox = new ComboBox<>("Seleccione el tipo");
         ComboBox<String> casoComboBox = new ComboBox<>("Seleccione el caso");
-        Button buttonPrimary = new Button("Siguiente");
-
         carreraComboBox.setItems(materiaService.obtenerTodasLasCarreras());
+        mainLayout.add(carreraComboBox);
 
         carreraComboBox.addValueChangeListener(event -> {
             String carreraSeleccionada = event.getValue();
             if (carreraSeleccionada != null) {
                 tipoComboBox.clear();
                 casoComboBox.clear();
-                mainLayout.removeAll();
-                mainLayout.add(textSmall, link, carreraComboBox, tipoComboBox, casoComboBox);
-
                 List<Materia> materias = materiaService.obtenerMateriasPorCarrera(carreraSeleccionada);
                 List<String> tipos = materias.stream()
                         .flatMap(m -> m.getTiposYCasos().keySet().stream())
                         .distinct()
                         .collect(Collectors.toList());
                 tipoComboBox.setItems(tipos);
-
-                tipoComboBox.addValueChangeListener(tipoEvent -> {
-                    String tipoSeleccionado = tipoEvent.getValue();
-                    if (tipoSeleccionado != null) {
-                        List<String> casos = materias.stream()
-                                .filter(m -> m.getTiposYCasos().containsKey(tipoSeleccionado))
-                                .flatMap(m -> m.getTiposYCasos().get(tipoSeleccionado).stream())
-                                .distinct()
-                                .collect(Collectors.toList());
-                        casoComboBox.setItems(casos);
-                    }
-                });
-
-                buttonPrimary.addClickListener(primaryEvent -> {
-                    if (carreraComboBox.getValue() != null && tipoComboBox.getValue() != null && casoComboBox.getValue() != null) {
-                        mostrarFormularioDisponibilidad(carreraComboBox.getValue(), tipoComboBox.getValue(), casoComboBox.getValue(), correoDoctor);
-                    } else {
-                        Notification.show("Por favor, complete todos los campos antes de continuar.");
-                    }
-                });
-
-                mainLayout.add(buttonPrimary);
             }
         });
 
-        mainLayout.add(carreraComboBox);
-    }
-
-    private void mostrarFormularioDisponibilidad(String carrera, String tipo, String caso, String correoDoctor) {
-        mainLayout.removeAll();
-
-        datePicker = new DatePicker("Fecha de inicio de semana");
-        datePicker.setI18n(new DatePicker.DatePickerI18n()
-                .setWeekdays(Arrays.asList("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"))
-                .setFirstDayOfWeek(1));
-
-        datePicker.setPlaceholder("Selecciona un lunes");
-        datePicker.setEnabled(true);
-        datePicker.addValueChangeListener(event -> {
-            fechaSeleccionada = event.getValue();
-            if (fechaSeleccionada != null) {
-                colocarDisponibilidadButton.setEnabled(true);
-            } else {
-                colocarDisponibilidadButton.setEnabled(false);
+        tipoComboBox.addValueChangeListener(event -> {
+            String tipoSeleccionado = event.getValue();
+            if (tipoSeleccionado != null) {
+                String carreraSeleccionada = carreraComboBox.getValue();
+                List<Materia> materias = materiaService.obtenerMateriasPorCarrera(carreraSeleccionada);
+                List<String> casos = materias.stream()
+                        .filter(m -> m.getTiposYCasos().containsKey(tipoSeleccionado))
+                        .flatMap(m -> m.getTiposYCasos().get(tipoSeleccionado).stream())
+                        .distinct()
+                        .collect(Collectors.toList());
+                casoComboBox.setItems(casos);
             }
         });
 
-        disponibilidadMap = new HashMap<>();
-        Grid<String> grid = new Grid<>(String.class, false);
-        grid.addColumn(String::toString).setHeader("Hora").setAutoWidth(true);
+        mainLayout.add(tipoComboBox, casoComboBox);
 
-        String[] horas = {"7h00", "8h05", "9h10", "10h15", "11h20", "12h25", "13h30", "14h35", "15h40", "16h45", "17h50"};
-        String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        // Fecha de la Sección de Paciente Simulado
+        datesLayoutSimulado = new VerticalLayout();
+        datesLayoutSimulado.setSpacing(true);
+        datesLayoutSimulado.setPadding(true);
 
-        for (String dia : dias) {
-            Map<String, Checkbox> dayMap = new HashMap<>();
-            grid.addComponentColumn(hora -> {
-                HorizontalLayout innerLayout = new HorizontalLayout();
-                innerLayout.setSpacing(true);
-                innerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-                Checkbox checkbox = new Checkbox();
-                dayMap.put(hora, checkbox);
-
-                innerLayout.add(checkbox);
-                return innerLayout;
-            }).setHeader(dia).setAutoWidth(true);
-            disponibilidadMap.put(dia, dayMap);
-        }
-
-        grid.setItems(horas);
-        grid.addThemeVariants(GridVariant.LUMO_COMPACT);
-
-        colocarDisponibilidadButton = new Button("Coloca tu disponibilidad");
-        colocarDisponibilidadButton.setEnabled(false);
-        colocarDisponibilidadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        colocarDisponibilidadButton.addClickListener(event -> {
-            mostrarFormularioPacientes(carrera, tipo, caso, correoDoctor);
+        DatePicker datePickerSimulado = new DatePicker("Seleccione fechas para la sesión de paciente simulado");
+        datePickerSimulado.setPlaceholder("Seleccione fechas");
+        datePickerSimulado.setClearButtonVisible(true);
+        datePickerSimulado.setEnabled(true);
+        datePickerSimulado.addValueChangeListener(event -> {
+            LocalDate selectedDate = event.getValue();
+            if (selectedDate != null) {
+                fechaSeccion = selectedDate;  // Asignamos la fecha seleccionada a fechaSeccion
+                addDateWithHours(selectedDate, datesLayoutSimulado, disponibilidadSimulado);
+                datePickerSimulado.clear();
+            }
         });
 
-        mainLayout.add(datePicker, grid, colocarDisponibilidadButton);
-    }
+        mainLayout.add(datePickerSimulado, datesLayoutSimulado);
 
-    private void mostrarFormularioPacientes(String carrera, String tipo, String caso, String correoDoctor) {
-        mainLayout.removeAll();
-
+        // Actividad y Número de Pacientes
         comboBoxActividad = new ComboBox<>("Seleccione para que actividad necesita");
         comboBoxActividad.setItems("Clase", "Evaluación", "Examen complexivo", "Capacitación", "Talleres");
         comboBoxActividad.setWidth("270px");
@@ -219,13 +154,37 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         siguienteButton.addClickListener(event -> {
             Integer numberOfPatients = comboBoxNumeroPacientes.getValue();
             if (numberOfPatients != null) {
-                updatePatientFields(numberOfPatients, correoDoctor, carrera, tipo, caso);
+                updatePatientFields(numberOfPatients, correoDoctor, carreraComboBox.getValue(), tipoComboBox.getValue(), casoComboBox.getValue());
             } else {
                 Notification.show("Por favor, seleccione el número de pacientes.");
             }
         });
 
         mainLayout.add(comboBoxActividad, comboBoxNumeroPacientes, siguienteButton);
+    }
+
+    private void addDateWithHours(LocalDate date, VerticalLayout datesLayout, Map<LocalDate, List<String>> disponibilidadMap) {
+        VerticalLayout dateLayout = new VerticalLayout();
+        String formattedDate = date.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es")) + " " +
+                date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        dateLayout.add(new H2(formattedDate));
+
+        MultiSelectComboBox<String> hoursComboBox = new MultiSelectComboBox<>("Seleccione horas");
+        hoursComboBox.setItems(
+                "7h00", "8h05", "9h10", "10h15", "11h20",
+                "12h25", "13h30", "14h35", "15h40", "16h45",
+                "17h45", "18h50", "19h50"
+        );
+        hoursComboBox.addValueChangeListener(event -> {
+            List<String> hours = new ArrayList<>(hoursComboBox.getSelectedItems());
+            disponibilidadMap.put(date, hours);
+            if (datesLayout == datesLayoutSimulado) {
+                horasSeccion = hours;  // Asignamos las horas seleccionadas a horasSeccion
+            }
+        });
+
+        dateLayout.add(hoursComboBox);
+        datesLayout.add(dateLayout);
     }
 
     private void updatePatientFields(int numberOfPatients, String correoDoctor, String carrera, String tipo, String caso) {
@@ -275,7 +234,7 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         comboBoxRequerimiento = new ComboBox<>("Forma de requerimiento de su Paciente Para la práctica");
         comboBoxRequerimiento.setItems("Presencial", "Virtual");
         fechaEntrenamiento = new DatePicker("Fecha de entrenamiento");
-        horarioEntrenamiento = new ComboBox<>("Horario de entrenamiento");
+        horarioEntrenamiento = new MultiSelectComboBox<>("Horario de entrenamiento");
         horarioEntrenamiento.setItems("7h00", "8h05", "9h10", "10h15", "11h20", "12h25", "13h30", "14h35", "15h40", "16h45", "17h50");
 
         Button guardarButton = new Button("Reservar para su práctica");
@@ -301,10 +260,11 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         reserva.setNumeroPacientes(comboBoxNumeroPacientes.getValue());
         reserva.setFormaRequerimiento(comboBoxRequerimiento.getValue());
         reserva.setFechaEntrenamiento(fechaEntrenamiento.getValue());
-        reserva.setHorasEntrenamiento(new String[]{horarioEntrenamiento.getValue()});
+        reserva.setHorasEntrenamiento(horarioEntrenamiento.getValue().toArray(new String[0]));
+        reserva.setFechaSeccion(fechaSeccion);  // Guardamos la fecha de la sección de paciente simulado
+        reserva.setHorasSeccion(horasSeccion.toArray(new String[0]));  // Guardamos las horas de la sección de paciente simulado
         reserva.setPacientes(pacientes);
         reserva.setEstado("pendiente");
-        reserva.setFechaInicioSemana(fechaSeleccionada);
 
         Map<String, Boolean> disponibilidad = new HashMap<>();
         Map<String, String[]> horasReserva = new HashMap<>();
@@ -323,20 +283,12 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
             }
         }
 
-        reserva.setDisponible(disponibilidad);
-        reserva.setHorasReserva(horasReserva);
 
         reservaService.guardarReserva(reserva);
         Notification.show("Reserva guardada exitosamente.");
 
         mainLayout.removeAll();
-        showForm(emailField.getValue());
+        showForm(correoDoctor);
 
-        emailField.clear();
-        comboBoxActividad.clear();
-        comboBoxNumeroPacientes.clear();
-        comboBoxRequerimiento.clear();
-        fechaEntrenamiento.clear();
-        horarioEntrenamiento.clear();
     }
 }

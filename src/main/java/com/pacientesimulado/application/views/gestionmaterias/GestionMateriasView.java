@@ -18,8 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.stream.Collectors;
 
-@PageTitle("Gestión de Materias")
 @Route(value = "gestion-materias", layout = MainLayout.class)
+@PageTitle("Gestión de Materias")
+
 public class GestionMateriasView extends VerticalLayout {
 
     private final MateriaService materiaService;

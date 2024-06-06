@@ -20,14 +20,22 @@ public class Reserva {
     private String formaRequerimiento;
     private LocalDate fechaEntrenamiento;
     private String[] horasEntrenamiento;
-    private LocalDate fechaInicioSemana;
-    private Map<String, Boolean> disponible;
-    private Map<String, String[]> horasReserva;
+    private LocalDate fechaSeccion;
+    private String[] horasSeccion;
     private List<Paciente> pacientes;
     private String estado;
     private List<Actor> actoresAsignados; // Nueva lista para almacenar actores asignados
 
-    // Constructores, getters y setters
+    public Reserva() {
+    }
+    // Constructor para disponibilidad
+    public Reserva(String correoDoctor, String carrera, Map<LocalDate, List<String>> disponibilidad) {
+        this.correoDoctor = correoDoctor;
+        this.carrera = carrera;
+        this.estado = "pendiente";
+    }
+
+    // Constructor completo
     public Reserva(String correoDoctor, String carrera, String tipo, String caso) {
         this.correoDoctor = correoDoctor;
         this.carrera = carrera;
@@ -35,6 +43,8 @@ public class Reserva {
         this.caso = caso;
         this.estado = "pendiente";
     }
+
+    // Getters y setters
 
     public String getId ( ) {
         return id;
@@ -116,28 +126,20 @@ public class Reserva {
         this.horasEntrenamiento = horasEntrenamiento;
     }
 
-    public LocalDate getFechaInicioSemana ( ) {
-        return fechaInicioSemana;
+    public LocalDate getFechaSeccion ( ) {
+        return fechaSeccion;
     }
 
-    public void setFechaInicioSemana ( LocalDate fechaInicioSemana ) {
-        this.fechaInicioSemana = fechaInicioSemana;
+    public void setFechaSeccion ( LocalDate fechaSeccion ) {
+        this.fechaSeccion = fechaSeccion;
     }
 
-    public Map < String, Boolean > getDisponible ( ) {
-        return disponible;
+    public String[] getHorasSeccion ( ) {
+        return horasSeccion;
     }
 
-    public void setDisponible ( Map < String, Boolean > disponible ) {
-        this.disponible = disponible;
-    }
-
-    public Map < String, String[] > getHorasReserva ( ) {
-        return horasReserva;
-    }
-
-    public void setHorasReserva ( Map < String, String[] > horasReserva ) {
-        this.horasReserva = horasReserva;
+    public void setHorasSeccion ( String[] horasSeccion ) {
+        this.horasSeccion = horasSeccion;
     }
 
     public List < Paciente > getPacientes ( ) {
@@ -156,11 +158,11 @@ public class Reserva {
         this.estado = estado;
     }
 
-    public List<Actor> getActoresAsignados() {
+    public List < Actor > getActoresAsignados ( ) {
         return actoresAsignados;
     }
 
-    public void setActoresAsignados(List<Actor> actoresAsignados) {
+    public void setActoresAsignados ( List < Actor > actoresAsignados ) {
         this.actoresAsignados = actoresAsignados;
     }
 }
