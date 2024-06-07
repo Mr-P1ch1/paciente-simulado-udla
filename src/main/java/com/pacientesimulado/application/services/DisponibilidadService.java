@@ -1,7 +1,7 @@
 package com.pacientesimulado.application.services;
 
-import com.pacientesimulado.application.data.Disponibilidad;
-import com.pacientesimulado.application.repository.DisponibilidadRepository;
+import com.pacientesimulado.application.data.DisponibilidadActor;
+import com.pacientesimulado.application.repository.DisponibilidadActorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,26 +10,22 @@ import java.util.List;
 @Service
 public class DisponibilidadService {
 
-    private final DisponibilidadRepository disponibilidadRepository;
+    private final DisponibilidadActorRepository disponibilidadActorRepository;
 
     @Autowired
-    public DisponibilidadService(DisponibilidadRepository disponibilidadRepository) {
-        this.disponibilidadRepository = disponibilidadRepository;
+    public DisponibilidadService(DisponibilidadActorRepository disponibilidadActorRepository) {
+        this.disponibilidadActorRepository = disponibilidadActorRepository;
     }
 
-    public List<Disponibilidad> obtenerPorActorId(String actorId) {
-        return disponibilidadRepository.findByActorId(actorId);
+    public List<DisponibilidadActor> obtenerDisponibilidadesPorActorId(String actorId) {
+        return disponibilidadActorRepository.findByActorId(actorId);
     }
 
-    public Disponibilidad guardarDisponibilidad(Disponibilidad disponibilidad) {
-        return disponibilidadRepository.save(disponibilidad);
+    public DisponibilidadActor guardarDisponibilidad(DisponibilidadActor disponibilidadActor) {
+        return disponibilidadActorRepository.save(disponibilidadActor);
     }
 
     public void eliminarDisponibilidad(String id) {
-        disponibilidadRepository.deleteById(id);
-    }
-
-    public List<Disponibilidad> obtenerDisponibilidadesPorActorId(String actorId) {
-        return disponibilidadRepository.findByActorId(actorId);
+        disponibilidadActorRepository.deleteById(id);
     }
 }

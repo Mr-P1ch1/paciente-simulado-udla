@@ -76,11 +76,13 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         mainLayout.removeAll();
 
         // Conozca su caso
-        Paragraph textSmall = new Paragraph("Si necesita consultar el caso que requiere antes de llenar el formulario por favor de click en el siguiente Link para que pueda revisarlo.");
+        Paragraph textSmall = new Paragraph("Si necesita consultar el caso que requiere antes de llenar el formulario por favor de click en el Consultar Casos.");
         textSmall.setWidth("100%");
         textSmall.getStyle().set("font-size", "var(--lumo-font-size-xs)");
+        //abrir en una nueva pestaña
         Anchor link = new Anchor("https://udlaec-my.sharepoint.com/:f:/g/personal/rocio_paredes_udla_edu_ec/EojckZ4-1wdIhAYnTu6HYf4B-BJwp_aYFdc_p58HG11-Qw?e=efvbdR", "Consultar casos");
         link.setWidth("100%");
+        link.setTarget("_blank");
         mainLayout.add(textSmall, link);
 
         // Selección de Carrera, Tipo y Caso
@@ -127,6 +129,7 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
 
         DatePicker datePickerSimulado = new DatePicker("Seleccione fechas para la sesión de paciente simulado");
         datePickerSimulado.setPlaceholder("Seleccione fechas");
+        datePickerSimulado.setWidth("500px");
         datePickerSimulado.setClearButtonVisible(true);
         datePickerSimulado.setEnabled(true);
         datePickerSimulado.addValueChangeListener(event -> {
@@ -171,7 +174,7 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
 
         MultiSelectComboBox<String> hoursComboBox = new MultiSelectComboBox<>("Seleccione horas");
         hoursComboBox.setItems(
-                "7h00", "8h05", "9h10", "10h15", "11h20",
+                "07h00", "08h05", "09h10", "10h15", "11h20",
                 "12h25", "13h30", "14h35", "15h40", "16h45",
                 "17h45", "18h50", "19h50"
         );
@@ -204,7 +207,7 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
             comboBoxGenero.setWidth("min-content");
 
             ComboBox<String> comboBoxEdad = new ComboBox<>("Rango de edad del paciente simulado");
-            comboBoxEdad.setItems("Joven (18-29 años)", "Adulto (30-39 años)", "Adulto medio (39-49 años)", "Adulto mayor (50 años en adelante)", "No relevante");
+            comboBoxEdad.setItems("Joven (18-29 años)", "Adulto (30-39 años)", "Adulto medio (40-49 años)", "Adulto mayor (50 años en adelante)", "No relevante");
             comboBoxEdad.setWidth("260px");
 
             ComboBox<String> comboBoxMoulage = new ComboBox<>("¿Requiere moulage?");
@@ -233,15 +236,19 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
 
         comboBoxRequerimiento = new ComboBox<>("Forma de requerimiento de su Paciente Para la práctica");
         comboBoxRequerimiento.setItems("Presencial", "Virtual");
+        comboBoxRequerimiento.setWidth("500px");
         fechaEntrenamiento = new DatePicker("Fecha de entrenamiento");
         horarioEntrenamiento = new MultiSelectComboBox<>("Horario de entrenamiento");
-        horarioEntrenamiento.setItems("7h00", "8h05", "9h10", "10h15", "11h20", "12h25", "13h30", "14h35", "15h40", "16h45", "17h50");
+        horarioEntrenamiento.setItems("07h00", "08h05", "09h10", "10h15", "11h20", "12h25", "13h30", "14h35", "15h40", "16h45", "17h50");
 
         Button guardarButton = new Button("Reservar para su práctica");
         guardarButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         guardarButton.addClickListener(event -> guardarReserva(pacientes, correoDoctor, carrera, tipo, caso, patientDataList));
+        Button retrocederButton = new Button("Retroceder");
+        retrocederButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        retrocederButton.addClickListener(event -> showForm(correoDoctor));
 
-        mainLayout.add(comboBoxRequerimiento, fechaEntrenamiento, horarioEntrenamiento, new com.vaadin.flow.component.html.Hr(), guardarButton);
+        mainLayout.add(comboBoxRequerimiento, fechaEntrenamiento, horarioEntrenamiento, new com.vaadin.flow.component.html.Hr(), guardarButton, retrocederButton);
     }
 
     private void guardarReserva(List<Paciente> pacientes, String correoDoctor, String carrera, String tipo, String caso, List<Map<String, Object>> patientDataList) {
@@ -266,29 +273,10 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         reserva.setPacientes(pacientes);
         reserva.setEstado("pendiente");
 
-        Map<String, Boolean> disponibilidad = new HashMap<>();
-        Map<String, String[]> horasReserva = new HashMap<>();
-
-        for (String dia : disponibilidadMap.keySet()) {
-            Map<String, Checkbox> dayMap = disponibilidadMap.get(dia);
-            List<String> horas = new ArrayList<>();
-            for (String hora : dayMap.keySet()) {
-                if (dayMap.get(hora).getValue()) {
-                    horas.add(hora);
-                }
-            }
-            if (!horas.isEmpty()) {
-                disponibilidad.put(dia, true);
-                horasReserva.put(dia, horas.toArray(new String[0]));
-            }
-        }
-
-
         reservaService.guardarReserva(reserva);
         Notification.show("Reserva guardada exitosamente.");
 
         mainLayout.removeAll();
         showForm(correoDoctor);
-
     }
 }

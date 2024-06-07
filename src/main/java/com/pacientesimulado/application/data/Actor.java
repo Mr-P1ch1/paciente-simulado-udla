@@ -2,6 +2,8 @@ package com.pacientesimulado.application.data;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "actores")
 public class Actor {
@@ -13,8 +15,11 @@ public class Actor {
     private String sexo;
     private double peso;
     private double altura;
+    private List<Disponibilidad> disponibilidades = new ArrayList<>();  // Inicializar la lista
+    private List<SesionAsignada> sesionesAsignadas = new ArrayList<>(); // Inicializar la lista
 
     // Getters y Setters
+
     public String getId() {
         return id;
     }
@@ -69,5 +74,21 @@ public class Actor {
 
     public void setAltura(double altura) {
         this.altura = altura;
+    }
+
+    public List<Disponibilidad> getDisponibilidades() {
+        return disponibilidades;
+    }
+
+    public void setDisponibilidades(List<Disponibilidad> disponibilidades) {
+        this.disponibilidades = disponibilidades;
+    }
+
+    public List<SesionAsignada> getSesionesAsignadas() {
+        return sesionesAsignadas;
+    }
+
+    public void setSesionesAsignadas(List<SesionAsignada> sesionesAsignadas) {
+        this.sesionesAsignadas = sesionesAsignadas;
     }
 }

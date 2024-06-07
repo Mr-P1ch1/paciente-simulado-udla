@@ -144,8 +144,11 @@ public class RegistroView extends VerticalLayout {
         actorBinder.forField(alturaField)
                 .withValidator(a -> a == null || (a >= 1.0 && a <= 2.50), "Altura debe estar entre 1.0 m y 2.50 m")
                 .bind(Actor::getAltura, Actor::setAltura);
+        Button backButton = new Button("Volver al Login");
+        backButton.addClickListener(event -> getUI().ifPresent(ui -> ui.navigate(LoginView.class)));
+        add(backButton);
 
-        add(title, subtitle, nombreField, apellidoField, emailField, passwordField, roleSelect, edadField, sexo, pesoField, alturaField, registerButton);
+        add(title, subtitle, nombreField, apellidoField, emailField, passwordField, roleSelect, edadField, sexo, pesoField, alturaField, registerButton, backButton);
     }
 
     private static class DoubleToIntegerConverter implements Converter<Double, Integer> {

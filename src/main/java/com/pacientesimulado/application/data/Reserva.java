@@ -25,6 +25,8 @@ public class Reserva {
     private List<Paciente> pacientes;
     private String estado;
     private List<Actor> actoresAsignados; // Nueva lista para almacenar actores asignados
+    private String actorAsignadoId;
+    private String tipoReserva;
 
     public Reserva() {
     }
@@ -164,5 +166,20 @@ public class Reserva {
 
     public void setActoresAsignados ( List < Actor > actoresAsignados ) {
         this.actoresAsignados = actoresAsignados;
+    }
+    public String getActorAsignadoId() {
+        return actorAsignadoId;
+    }
+
+    public void setActorAsignadoId(String actorAsignadoId) {
+        this.actorAsignadoId = actorAsignadoId;
+    }
+
+    public String getTipoReserva ( ) {
+        return tipoReserva;
+    }
+
+    public void setTipoReserva ( String tipoReserva ) {
+        this.tipoReserva = tipoReserva;
     }
 }

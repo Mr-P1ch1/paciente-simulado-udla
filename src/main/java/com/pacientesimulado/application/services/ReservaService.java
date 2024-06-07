@@ -43,4 +43,18 @@ public class ReservaService {
         }
         guardarReserva(reserva);
     }
+
+    public Actor obtenerActorAsignado(String idReserva) {
+        Reserva reserva = obtenerReservaPorId(idReserva);
+        if (reserva != null && !reserva.getActoresAsignados().isEmpty()) {
+            return reserva.getActoresAsignados().get(0);
+        }
+        return null;
+    }
+
+    private Reserva obtenerReservaPorId ( String idReserva ) {
+        return reservaRepository.findById(idReserva).orElse(null);
+    }
+
+
 }

@@ -1,4 +1,5 @@
 package com.pacientesimulado.application.services;
+
 import com.pacientesimulado.application.data.DisponibilidadActor;
 import com.pacientesimulado.application.repository.DisponibilidadActorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class DisponibilidadActorService {
         return repository.findByActorId(actorId);
     }
 
-    public DisponibilidadActor guardarDisponibilidad(DisponibilidadActor disponibilidad) {
-        return repository.save(disponibilidad);
+    public void guardarDisponibilidad(List<DisponibilidadActor> disponibilidades) {
+        repository.saveAll(disponibilidades);
     }
 
     public void eliminarDisponibilidad(String id) {

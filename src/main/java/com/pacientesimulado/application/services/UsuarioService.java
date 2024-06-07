@@ -1,3 +1,4 @@
+// UsuarioService.java
 package com.pacientesimulado.application.services;
 
 import com.pacientesimulado.application.data.Usuario;
@@ -54,7 +55,16 @@ public class UsuarioService {
     public void eliminarUsuario(String id) {
         usuarioRepository.deleteById(id);
     }
+
     public Usuario buscarPorCorreo(String correo) {
         return usuarioRepository.findByCorreo(correo).orElse(null);
+    }
+
+    public List<Usuario> obtenerTodosLosUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    public Optional<Usuario> obtenerUsuarioPorCorreoOptional(String correo) {
+        return usuarioRepository.findByCorreo(correo);
     }
 }

@@ -1,6 +1,8 @@
+// ActorService.java
 package com.pacientesimulado.application.services;
 
 import com.pacientesimulado.application.data.Actor;
+import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.repository.ActorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +16,24 @@ public class ActorService {
     @Autowired
     private ActorRepository actorRepository;
 
-    public ActorService(ActorRepository actorRepository) {
+    @Autowired
+    private UsuarioService usuarioService;
+
+    public ActorService(ActorRepository actorRepository, UsuarioService usuarioService) {
         this.actorRepository = actorRepository;
+        this.usuarioService = usuarioService;
     }
 
     public List<Actor> obtenerTodosLosActores() {
-        return actorRepository.findAll();
+        List<Actor> actores = actorRepository.findAll();
+        actores.forEach(actor -> {
+            // Obtener el nombre y apellido del usuario correspondiente al actor
+            usuarioService.obtenerUsuarioPorCorreoOptional(actor.getCorreo()).ifPresent(usuario -> {
+                actor.setNombre(usuario.getNombre() + " " + usuario.getApellido());
+            });
+            System.out.println("Actor obtenido: " + actor.getNombre() + ", Correo: " + actor.getCorreo());
+        });
+        return actores;
     }
 
     public Optional<Actor> obtenerActorPorId(String id) {
@@ -27,7 +41,14 @@ public class ActorService {
     }
 
     public Optional<Actor> obtenerActorPorCorreo(String correo) {
-        return actorRepository.findByCorreo(correo);
+        Optional<Actor> actorOptional = actorRepository.findByCorreo(correo);
+        actorOptional.ifPresent(actor -> {
+            // Obtener el nombre y apellido del usuario correspondiente al actor
+            usuarioService.obtenerUsuarioPorCorreoOptional(correo).ifPresent(usuario -> {
+                actor.setNombre(usuario.getNombre() + " " + usuario.getApellido());
+            });
+        });
+        return actorOptional;
     }
 
     public void eliminarActor(String id) {
