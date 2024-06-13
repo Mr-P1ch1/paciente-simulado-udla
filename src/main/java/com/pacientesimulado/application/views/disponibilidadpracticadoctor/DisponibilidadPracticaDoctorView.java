@@ -93,7 +93,7 @@ public class DisponibilidadPracticaDoctorView extends VerticalLayout {
 
         if (optionalDoctor.isPresent()) {
             Doctor doctor = optionalDoctor.get();
-            List<Disponibilidad> disponibilidades = new ArrayList<>();
+            List<Disponibilidad> nuevasDisponibilidades = new ArrayList<>();
             for (int i = 0; i < datesLayout.getComponentCount(); i++) {
                 VerticalLayout dateLayout = (VerticalLayout) datesLayout.getComponentAt(i);
                 String dateText = ((H2) dateLayout.getComponentAt(0)).getText();
@@ -111,9 +111,14 @@ public class DisponibilidadPracticaDoctorView extends VerticalLayout {
                     horas.add(horaDisponibilidad);
                 }
                 disponibilidad.setHoras(horas);
-                disponibilidades.add(disponibilidad);
+                nuevasDisponibilidades.add(disponibilidad);
             }
-            doctor.setDisponibilidades(disponibilidades);
+
+            // Agregar nuevas disponibilidades a las existentes
+            List<Disponibilidad> disponibilidadesExistentes = doctor.getDisponibilidades();
+            disponibilidadesExistentes.addAll(nuevasDisponibilidades);
+            doctor.setDisponibilidades(disponibilidadesExistentes);
+
             doctorService.guardarDoctor(doctor);
             Notification.show("Disponibilidad guardada");
         } else {
