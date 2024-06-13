@@ -22,7 +22,6 @@ import com.vaadin.flow.component.notification.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -67,7 +66,6 @@ public class SolicitudesdereservaView extends VerticalLayout {
 
         grid.addItemClickListener(event -> showAssignActorDialog(event.getItem(), 1));
     }
-
 
     private void listReservas() {
         List<Reserva> reservas = reservaService.obtenerTodasLasReservas();
@@ -117,26 +115,28 @@ public class SolicitudesdereservaView extends VerticalLayout {
             LocalDate selectedDate = event.getValue();
             if (selectedDate != null) {
                 filterHorasDisponibles(reserva.getCorreoDoctor(), selectedDate, horaPracticaComboBox);
+                if (horaPracticaComboBox.getValue() != null) {
+                    filterActors(actorComboBox, generoComboBox.getValue(), edadComboBox.getValue(), selectedDate, horaPracticaComboBox.getValue());
+                }
+            }
+        });
+
+        horaPracticaComboBox.addValueChangeListener(event -> {
+            if (fechaPracticaComboBox.getValue() != null && event.getValue() != null) {
+                filterActors(actorComboBox, generoComboBox.getValue(), edadComboBox.getValue(), fechaPracticaComboBox.getValue(), event.getValue());
             }
         });
 
         filterFechasYHorasDisponibles(reserva.getCorreoDoctor(), fechaPracticaComboBox, horaPracticaComboBox);
 
-        filterActors(actorComboBox, generoComboBox.getValue(), edadComboBox.getValue(), reserva);
-
-        if (reserva.getActoresAsignados() == null) {
-            reserva.setActoresAsignados(new ArrayList<>());
-        }
-
-        Optional<Actor> actorAsignado = reserva.getActoresAsignados().stream().findFirst();
-        actorAsignado.ifPresent(actor -> actorComboBox.setValue(actor));
-
-        if (actorComboBox.isEmpty()) {
-            generoComboBox.setEnabled(true);
-            edadComboBox.setEnabled(true);
+        if (reserva.getFechaEntrenamiento() == null || reserva.getHorasEntrenamiento() == null || reserva.getHorasEntrenamiento().isEmpty()) {
+            dialogLayout.add(new HorizontalLayout(new Span("Fecha de Práctica: "), fechaPracticaComboBox));
+            dialogLayout.add(new HorizontalLayout(new Span("Hora de Práctica: "), horaPracticaComboBox));
         } else {
-            generoComboBox.setEnabled(false);
-            edadComboBox.setEnabled(false);
+            dialogLayout.add(
+                    new Span("Fecha de Práctica: " + reserva.getFechaEntrenamiento()),
+                    new Span("Hora de Práctica: " + String.join(", ", reserva.getHorasEntrenamiento()))
+            );
         }
 
         Button assignButton = new Button("Asignar");
@@ -145,21 +145,21 @@ public class SolicitudesdereservaView extends VerticalLayout {
             if (actorComboBox.getValue() != null) {
                 Actor actorSeleccionado = actorComboBox.getValue();
                 String tipoSeccion = tipoSeccionComboBox.getValue();
+                LocalDate fechaPractica = fechaPracticaComboBox.getValue();
+                String horaPractica = horaPracticaComboBox.getValue();
 
                 SesionAsignada sesionAsignada = new SesionAsignada();
                 sesionAsignada.setIdReserva(reserva.getId());
                 sesionAsignada.setTipoSeccion(tipoSeccion);
                 actorSeleccionado.getSesionesAsignadas().add(sesionAsignada);
 
-                LocalDate fechaPractica = fechaPracticaComboBox.getValue();
-                String horaPractica = horaPracticaComboBox.getValue();
                 actualizarDisponibilidadActor(actorSeleccionado, reserva, horaPractica);
                 actualizarDisponibilidadDoctor(reserva.getCorreoDoctor(), actorSeleccionado, reserva, horaPractica);
 
                 actorService.guardarActor(actorSeleccionado);
                 reserva.setTipoReserva(tipoSeccion);
                 reserva.setFechaEntrenamiento(fechaPractica);
-                reserva.setHorasEntrenamiento(Arrays.asList(horaPractica));
+                reserva.setHorasEntrenamiento(Collections.singletonList(horaPractica));
                 reservaService.asignarActor(reserva, actorSeleccionado);
                 Notification.show("Actor " + actorIndex + " asignado correctamente.");
                 dialog.close();
@@ -172,7 +172,6 @@ public class SolicitudesdereservaView extends VerticalLayout {
         Button cancelButton = new Button("Cancelar", event -> dialog.close());
 
         dialogLayout.add(
-                new Span("Asignar Actor a la Reserva"),
                 new Span("Estado: " + reserva.getEstado()),
                 new Span("Tipo de Sección: " + (reserva.getTipoReserva() != null ? reserva.getTipoReserva() : "No asignada")),
                 new Span("Doctor: " + (usuarioService.obtenerUsuarioPorCorreo(reserva.getCorreoDoctor()).map(doc -> doc.getNombre() + " " + doc.getApellido()).orElse("Desconocido"))),
@@ -180,19 +179,11 @@ public class SolicitudesdereservaView extends VerticalLayout {
                 new Span("Actividad: " + reserva.getActividad()),
                 new Span("Carrera: " + reserva.getCarrera()),
                 new Span("Caso: " + reserva.getCaso()),
-                new Span("Fecha de Práctica: " + (reserva.getFechaEntrenamiento() != null ? reserva.getFechaEntrenamiento().toString() : "No asignada")),
-                new Span("Hora de Práctica: " + (reserva.getHorasEntrenamiento() != null ? String.join(", ", reserva.getHorasEntrenamiento()) : "No asignada")),
-                new HorizontalLayout(new Span("Fecha de Práctica: "), fechaPracticaComboBox),
-                new HorizontalLayout(new Span("Hora de Práctica: "), horaPracticaComboBox),
-                new Span("Fecha de Sección: " + reserva.getFechaSeccion()),
+                new Span("Fecha de Sección: " + (reserva.getFechaSeccion() != null ? reserva.getFechaSeccion() : "No asignada")),
                 new Span("Hora de Sección: " + (reserva.getHorasSeccion() != null ? String.join(", ", reserva.getHorasSeccion()) : "No asignada")),
                 generoComboBox, edadComboBox, actorComboBox, tipoSeccionComboBox,
                 new HorizontalLayout(assignButton, cancelButton)
         );
-
-        if (actorComboBox.isEmpty()) {
-            Notification.show("No hay disponibilidad de actores con las características seleccionadas. Puedes cambiar los filtros de edad y sexo para encontrar un actor disponible.", 5000, Notification.Position.MIDDLE);
-        }
 
         dialog.add(dialogLayout);
         dialog.open();
@@ -202,15 +193,23 @@ public class SolicitudesdereservaView extends VerticalLayout {
         Optional<Doctor> doctorOptional = doctorService.obtenerDoctorPorCorreo(correoDoctor);
         if (doctorOptional.isPresent()) {
             Doctor doctor = doctorOptional.get();
-            List<LocalDate> fechasDisponibles = doctor.getDisponibilidades().stream()
+            List<Disponibilidad> disponibilidades = doctor.getDisponibilidades();
+
+            Set<LocalDate> fechasDisponibles = disponibilidades.stream()
                     .map(Disponibilidad::getFecha)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
             fechaPracticaComboBox.setItems(fechasDisponibles);
 
             fechaPracticaComboBox.addValueChangeListener(event -> {
                 LocalDate selectedDate = event.getValue();
                 if (selectedDate != null) {
-                    filterHorasDisponibles(correoDoctor, selectedDate, horaPracticaComboBox);
+                    List<String> horasDisponibles = disponibilidades.stream()
+                            .filter(disponibilidad -> disponibilidad.getFecha().equals(selectedDate))
+                            .flatMap(disponibilidad -> disponibilidad.getHoras().stream())
+                            .filter(horaDisponibilidad -> horaDisponibilidad.getEstado().equals("libre"))
+                            .map(Disponibilidad.HoraDisponibilidad::getHora)
+                            .collect(Collectors.toList());
+                    horaPracticaComboBox.setItems(horasDisponibles);
                 }
             });
         }
@@ -236,7 +235,7 @@ public class SolicitudesdereservaView extends VerticalLayout {
                 .orElse("Desconocido");
 
         actor.getDisponibilidades().forEach(disponibilidad -> {
-            if (disponibilidad.getFecha().equals(reserva.getFechaSeccion())) {
+            if (disponibilidad.getFecha().equals(reserva.getFechaEntrenamiento())) {
                 disponibilidad.getHoras().forEach(horaDisponibilidad -> {
                     if (horaDisponibilidad.getHora().equals(horaSeleccionada)) {
                         horaDisponibilidad.setEstado("Entrenamiento con " + nombreDoctor + " para la sección " + reserva.getCaso());
@@ -255,7 +254,7 @@ public class SolicitudesdereservaView extends VerticalLayout {
                     .orElse("Desconocido");
 
             doctor.getDisponibilidades().forEach(disponibilidad -> {
-                if (disponibilidad.getFecha().equals(reserva.getFechaSeccion())) {
+                if (disponibilidad.getFecha().equals(reserva.getFechaEntrenamiento())) {
                     disponibilidad.getHoras().forEach(horaDisponibilidad -> {
                         if (horaDisponibilidad.getHora().equals(horaSeleccionada)) {
                             horaDisponibilidad.setEstado("Entrenamiento con " + nombreActor + " para la sección " + reserva.getCaso());
@@ -267,21 +266,8 @@ public class SolicitudesdereservaView extends VerticalLayout {
         }
     }
 
-    private void filterActors(ComboBox<Actor> actorComboBox, String genero, String edad, Reserva reserva) {
+    private void filterActors(ComboBox<Actor> actorComboBox, String genero, String edad, LocalDate fechaEntrenamiento, String horaEntrenamiento) {
         List<Actor> todosLosActores = actorService.obtenerTodosLosActores();
-
-        // Log todos los actores obtenidos
-        System.out.println("Todos los actores obtenidos: ");
-        todosLosActores.forEach(actor -> {
-            Usuario usuario = usuarioService.obtenerUsuarioPorCorreo(actor.getCorreo()).orElse(null);
-            String nombreCompleto = (usuario != null) ? usuario.getNombre() + " " + usuario.getApellido() : "Sin nombre";
-            System.out.println("Actor: " + nombreCompleto);
-            actor.getDisponibilidades().forEach(disponibilidad -> {
-                System.out.println("Disponibilidad Fecha: " + disponibilidad.getFecha());
-                disponibilidad.getHoras().forEach(horaDisponibilidad ->
-                        System.out.println("Hora: " + horaDisponibilidad.getHora() + " Estado: " + horaDisponibilidad.getEstado()));
-            });
-        });
 
         List<Actor> actoresFiltrados = todosLosActores.stream()
                 .filter(actor -> {
@@ -307,22 +293,13 @@ public class SolicitudesdereservaView extends VerticalLayout {
                         }
                     }
 
-                    boolean fechaCoincide = actor.getDisponibilidades().stream()
-                            .anyMatch(disponibilidad -> disponibilidad.getFecha().equals(reserva.getFechaSeccion()));
+                    boolean disponibilidadCoincide = actor.getDisponibilidades().stream()
+                            .anyMatch(disponibilidad -> disponibilidad.getFecha().equals(fechaEntrenamiento) &&
+                                    disponibilidad.getHoras().stream()
+                                            .anyMatch(horaDisponibilidad -> horaDisponibilidad.getHora().equals(horaEntrenamiento) &&
+                                                    horaDisponibilidad.getEstado().equals("libre")));
 
-                    boolean horasCoinciden = actor.getDisponibilidades().stream()
-                            .filter(disponibilidad -> disponibilidad.getFecha().equals(reserva.getFechaSeccion()))
-                            .anyMatch(disponibilidad -> {
-                                boolean horaMatch = disponibilidad.getHoras().stream()
-                                        .anyMatch(horaDisponibilidad -> {
-                                            boolean estadoLibre = horaDisponibilidad.getEstado().equals("libre");
-                                            boolean horaContenida = Arrays.asList(reserva.getHorasSeccion()).contains(horaDisponibilidad.getHora());
-                                            return estadoLibre && horaContenida;
-                                        });
-                                return horaMatch;
-                            });
-
-                    return generoCoincide && edadCoincide && fechaCoincide && horasCoinciden;
+                    return generoCoincide && edadCoincide && disponibilidadCoincide;
                 })
                 .collect(Collectors.toList());
 

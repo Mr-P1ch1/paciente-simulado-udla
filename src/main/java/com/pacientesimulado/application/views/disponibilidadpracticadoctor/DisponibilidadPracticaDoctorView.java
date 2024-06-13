@@ -42,7 +42,7 @@ public class DisponibilidadPracticaDoctorView extends VerticalLayout {
         Usuario currentUser = VaadinSession.getCurrent().getAttribute(Usuario.class);
 
         add(new H2("Disponibilidad Práctica Doctor"));
-        welcomeMessage.setText("Bienvenido, " + currentUser.getNombre() + " " + currentUser.getApellido() + ". Seleccione las fechas y horas de disponibilidad para las entranamientos con el actor.");
+        welcomeMessage.setText("Bienvenido, " + currentUser.getNombre() + " " + currentUser.getApellido() + ". Seleccione las fechas y horas de disponibilidad para los entrenamientos con el actor.");
         add(welcomeMessage);
 
         datePicker = new DatePicker("Seleccione una o varias fechas");

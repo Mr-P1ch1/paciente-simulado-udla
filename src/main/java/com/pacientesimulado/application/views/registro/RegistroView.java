@@ -142,13 +142,13 @@ public class RegistroView extends VerticalLayout {
 
         actorBinder.forField(edadField)
                 .withConverter(new DoubleToIntegerConverter())
-                .withValidator(p -> p == null || (p >= 15 && p <= 90), "La edad debe estar entre 15 y 90 años")
+                .withValidator(p -> p == null || (p >= 18 && p <= 90), "La edad debe estar entre 15 y 90 años")
                 .bind(Actor::getEdad, Actor::setEdad);
         actorBinder.forField(sexo)
                 .asRequired("Sexo es requerido")
                 .bind(Actor::getSexo, Actor::setSexo);
         actorBinder.forField(pesoField)
-                .withValidator(p -> p == null || (p >= 30 && p <= 250), "El peso debe estar entre 30 y 90 kg")
+                .withValidator(p -> p == null || (p >= 30 && p <= 250), "El peso debe estar entre 30 y 250 kg")
                         .bind(Actor::getPeso, Actor::setPeso);
         actorBinder.forField(alturaField)
                 .withValidator(p -> p == null || (p >= 140 && p <= 240) , "La altura debe estar entre 140 y 240 cm")

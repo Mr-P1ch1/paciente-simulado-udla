@@ -136,7 +136,7 @@ public class GestionUsuariosView extends VerticalLayout {
         // Aplicar validaciones y bindings a los campos adicionales
         actorBinder.forField(edad)
                 .withConverter(new DoubleToIntegerConverter())
-                .withValidator(p -> p == null || (p >= 15 && p <= 90), "La edad debe estar entre 15 y 90 años")
+                .withValidator(p -> p == null || (p >= 18 && p <= 90), "La edad debe estar entre 18 y 90 años")
                 .bind(Actor::getEdad, Actor::setEdad);
 
         actorBinder.forField(sexo)

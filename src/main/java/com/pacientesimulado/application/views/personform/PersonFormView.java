@@ -58,12 +58,12 @@ public class PersonFormView extends VerticalLayout {
         binder.forField(edadField)
                 .withConverter(new DoubleToIntegerConverter())
                 .asRequired("Edad es requerida")
-                .withValidator(p -> p != null && p >= 5 && p <= 90, "La edad debe estar entre 5 y 90 años")
+                .withValidator(p -> p != null && p >= 18 && p <= 90, "La edad debe estar entre 18 y 90 años")
                 .bind(Actor::getEdad, Actor::setEdad);
 
         binder.forField(pesoField)
                 .asRequired("Peso es requerido")
-                .withValidator(p -> p != null && p >= 30 && p <= 300, "Peso debe estar entre 30 kg y 300 kg")
+                .withValidator(p -> p != null && p >= 30 && p <= 250, "Peso debe estar entre 30 kg y 250 kg")
                 .bind(Actor::getPeso, Actor::setPeso);
 
         binder.forField(alturaField)
