@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface ActorRepository extends MongoRepository<Actor, String> {
     Optional<Actor> findByCorreo(String correo);
     Optional<Actor> findById(String id);
+    void deleteByCorreo(String correo);
 }

@@ -14,11 +14,9 @@ import java.util.List;
 @Service
 public class ReservaService {
 
-
     private static final Logger logger = LoggerFactory.getLogger(ReservaService.class);
 
     private final ReservaRepository reservaRepository;
-
 
     @Autowired
     public ReservaService(ReservaRepository reservaRepository) {
@@ -29,13 +27,13 @@ public class ReservaService {
         return reservaRepository.findAll();
     }
 
-
     public void guardarReserva(Reserva reserva) {
         reservaRepository.save(reserva);
     }
+
     public void asignarActor(Reserva reserva, Actor actor) {
         if (reserva.getActoresAsignados() == null) {
-            reserva.setActoresAsignados(new ArrayList <> ());
+            reserva.setActoresAsignados(new ArrayList<>());
         }
         reserva.getActoresAsignados().add(actor);
         if (reserva.getActoresAsignados().size() >= reserva.getNumeroPacientes()) {
@@ -52,9 +50,7 @@ public class ReservaService {
         return null;
     }
 
-    private Reserva obtenerReservaPorId ( String idReserva ) {
+    private Reserva obtenerReservaPorId(String idReserva) {
         return reservaRepository.findById(idReserva).orElse(null);
     }
-
-
 }

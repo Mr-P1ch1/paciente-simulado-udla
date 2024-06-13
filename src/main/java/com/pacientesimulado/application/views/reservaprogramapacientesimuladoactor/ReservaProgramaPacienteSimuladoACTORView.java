@@ -39,18 +39,15 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
     private final MateriaService materiaService;
     private final ReservaService reservaService;
     private VerticalLayout mainLayout;
-    private LocalDate fechaSeleccionada;
     private Map<String, Map<String, Checkbox>> disponibilidadMap;
     private ComboBox<String> comboBoxActividad;
     private ComboBox<Integer> comboBoxNumeroPacientes;
     private ComboBox<String> comboBoxRequerimiento;
-    private DatePicker fechaEntrenamiento;
-    private MultiSelectComboBox<String> horarioEntrenamiento;
     private VerticalLayout datesLayoutSimulado;
     private Map<LocalDate, List<String>> disponibilidadSimulado = new HashMap<>();
     private Paragraph welcomeMessage = new Paragraph();
-    private LocalDate fechaSeccion; // Nuevo campo para la fecha de la sección de paciente simulado
-    private List<String> horasSeccion = new ArrayList<>(); // Nuevo campo para las horas de la sección de paciente simulado
+    private LocalDate fechaSeccion;
+    private List<String> horasSeccion = new ArrayList<>();
 
     @Autowired
     public ReservaProgramaPacienteSimuladoACTORView(UsuarioService usuarioService, MateriaService materiaService, ReservaService reservaService) {
@@ -128,7 +125,7 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         datesLayoutSimulado.setPadding(true);
 
         DatePicker datePickerSimulado = new DatePicker("Seleccione fechas para la sesión de paciente simulado");
-        datePickerSimulado.setPlaceholder("Seleccione fechas");
+        datePickerSimulado.setPlaceholder("Seleccione una o varias fechas");
         datePickerSimulado.setWidth("500px");
         datePickerSimulado.setClearButtonVisible(true);
         datePickerSimulado.setEnabled(true);
@@ -172,7 +169,7 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
                 date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         dateLayout.add(new H2(formattedDate));
 
-        MultiSelectComboBox<String> hoursComboBox = new MultiSelectComboBox<>("Seleccione horas");
+        MultiSelectComboBox<String> hoursComboBox = new MultiSelectComboBox<>("Seleccione una o varias horas");
         hoursComboBox.setItems(
                 "07h00", "08h05", "09h10", "10h15", "11h20",
                 "12h25", "13h30", "14h35", "15h40", "16h45",
@@ -237,9 +234,6 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         comboBoxRequerimiento = new ComboBox<>("Forma de requerimiento de su Paciente Para la práctica");
         comboBoxRequerimiento.setItems("Presencial", "Virtual");
         comboBoxRequerimiento.setWidth("500px");
-        fechaEntrenamiento = new DatePicker("Fecha de entrenamiento");
-        horarioEntrenamiento = new MultiSelectComboBox<>("Horario de entrenamiento");
-        horarioEntrenamiento.setItems("07h00", "08h05", "09h10", "10h15", "11h20", "12h25", "13h30", "14h35", "15h40", "16h45", "17h50");
 
         Button guardarButton = new Button("Reservar para su práctica");
         guardarButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -248,7 +242,7 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         retrocederButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         retrocederButton.addClickListener(event -> showForm(correoDoctor));
 
-        mainLayout.add(comboBoxRequerimiento, fechaEntrenamiento, horarioEntrenamiento, new com.vaadin.flow.component.html.Hr(), guardarButton, retrocederButton);
+        mainLayout.add(comboBoxRequerimiento, new com.vaadin.flow.component.html.Hr(), guardarButton, retrocederButton);
     }
 
     private void guardarReserva(List<Paciente> pacientes, String correoDoctor, String carrera, String tipo, String caso, List<Map<String, Object>> patientDataList) {
@@ -266,10 +260,8 @@ public class ReservaProgramaPacienteSimuladoACTORView extends Composite<Vertical
         reserva.setActividad(comboBoxActividad.getValue());
         reserva.setNumeroPacientes(comboBoxNumeroPacientes.getValue());
         reserva.setFormaRequerimiento(comboBoxRequerimiento.getValue());
-        reserva.setFechaEntrenamiento(fechaEntrenamiento.getValue());
-        reserva.setHorasEntrenamiento(horarioEntrenamiento.getValue().toArray(new String[0]));
-        reserva.setFechaSeccion(fechaSeccion);  // Guardamos la fecha de la sección de paciente simulado
-        reserva.setHorasSeccion(horasSeccion.toArray(new String[0]));  // Guardamos las horas de la sección de paciente simulado
+        reserva.setFechaSeccion(fechaSeccion);
+        reserva.setHorasSeccion(horasSeccion);
         reserva.setPacientes(pacientes);
         reserva.setEstado("pendiente");
 

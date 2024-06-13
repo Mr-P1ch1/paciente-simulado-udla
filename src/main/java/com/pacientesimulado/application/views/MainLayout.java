@@ -1,6 +1,7 @@
 package com.pacientesimulado.application.views;
 
 import com.pacientesimulado.application.data.Usuario;
+import com.pacientesimulado.application.views.disponibilidadpracticadoctor.DisponibilidadPracticaDoctorView;
 import com.pacientesimulado.application.views.disponibilidadsemanadeclases.DisponibilidadSemanaDeClasesView;
 import com.pacientesimulado.application.views.gestionmaterias.GestionMateriasView;
 import com.pacientesimulado.application.views.gestionusuarios.GestionUsuariosView;
@@ -62,7 +63,8 @@ public class MainLayout extends AppLayout implements BeforeEnterObserver {
                 ));
             } else if ("Doctor".equals(user.getRol())) {
                 addToDrawer(new VerticalLayout(
-                        new RouterLink("Reserva Programa Paciente Simulado (ACTOR)", ReservaProgramaPacienteSimuladoACTORView.class)
+                        new RouterLink("Reserva Programa Paciente Simulado (ACTOR)", ReservaProgramaPacienteSimuladoACTORView.class),
+                        new RouterLink("Disponibilidad Practica Doctor", DisponibilidadPracticaDoctorView.class)
                 ));
             }
         }

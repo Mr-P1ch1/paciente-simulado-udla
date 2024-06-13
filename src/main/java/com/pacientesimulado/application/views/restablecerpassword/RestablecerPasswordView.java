@@ -1,4 +1,5 @@
 package com.pacientesimulado.application.views.restablecerpassword;
+
 import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.services.UsuarioService;
 import com.pacientesimulado.application.views.login.LoginView;
@@ -45,28 +46,25 @@ public class RestablecerPasswordView extends VerticalLayout {
             }
         });
 
-
-        changePasswordButton.addClickListener(eventChange -> {
-            changePasswordButton.addClickListener(event -> {
-                String nuevaContrasena = newPasswordField.getValue();
-                String confirmarNuevaContrasena = confirmNewPasswordField.getValue();
-                if (nuevaContrasena.isEmpty() || confirmarNuevaContrasena.isEmpty()) {
-                    Notification.show("Los campos de contraseña no pueden estar vacíos.", 3000, Notification.Position.MIDDLE);
-                    return;
-                }
-                if (nuevaContrasena.equals(confirmarNuevaContrasena)) {
-                    usuarioActual.setContraseña(nuevaContrasena);
-                    usuarioService.actualizarUsuario(usuarioActual.getId(), usuarioActual);
-                    Notification.show("Contraseña cambiada exitosamente!", 3000, Notification.Position.MIDDLE);
-                    getUI().ifPresent(ui -> ui.navigate(LoginView.class));
-                } else {
-                    Notification.show("Las contraseñas no coinciden.", 3000, Notification.Position.MIDDLE);
-                }
-            });
+        changePasswordButton.addClickListener(event -> {
+            String nuevaContrasena = newPasswordField.getValue();
+            String confirmarNuevaContrasena = confirmNewPasswordField.getValue();
+            if (nuevaContrasena.isEmpty() || confirmarNuevaContrasena.isEmpty()) {
+                Notification.show("Los campos de contraseña no pueden estar vacíos.", 3000, Notification.Position.MIDDLE);
+                return;
+            }
+            if (nuevaContrasena.equals(confirmarNuevaContrasena)) {
+                usuarioActual.setContraseña(nuevaContrasena);
+                usuarioService.actualizarUsuario(usuarioActual.getId(), usuarioActual);
+                Notification.show("Contraseña cambiada exitosamente!", 3000, Notification.Position.MIDDLE);
+                getUI().ifPresent(ui -> ui.navigate(LoginView.class));
+            } else {
+                Notification.show("Las contraseñas no coinciden.", 3000, Notification.Position.MIDDLE);
+            }
         });
 
         backButton.addClickListener(event -> {
-            getUI().ifPresent(ui -> ui.navigate( LoginView.class));
+            getUI().ifPresent(ui -> ui.navigate(LoginView.class));
         });
 
         resetButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

@@ -1,8 +1,10 @@
 package com.pacientesimulado.application.views.gestionusuarios;
 
 import com.pacientesimulado.application.data.Actor;
+import com.pacientesimulado.application.data.Doctor;
 import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.services.ActorService;
+import com.pacientesimulado.application.services.DoctorService;
 import com.pacientesimulado.application.services.UsuarioService;
 import com.pacientesimulado.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
@@ -27,7 +29,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PageTitle("Gestión de Usuarios")
@@ -36,16 +37,21 @@ public class GestionUsuariosView extends VerticalLayout {
 
     private final UsuarioService usuarioService;
     private final ActorService actorService;
+    private final DoctorService doctorService;
     private Grid<Usuario> grid;
     private Binder<Usuario> binder;
-    private Usuario usuarioSeleccionado;
+    private Binder<Actor> actorBinder;
+    private Binder<Doctor> doctorBinder;
 
     @Autowired
-    public GestionUsuariosView(UsuarioService usuarioService, ActorService actorService) {
+    public GestionUsuariosView(UsuarioService usuarioService, ActorService actorService, DoctorService doctorService) {
         this.usuarioService = usuarioService;
         this.actorService = actorService;
+        this.doctorService = doctorService;
         this.grid = new Grid<>(Usuario.class);
         this.binder = new Binder<>(Usuario.class);
+        this.actorBinder = new Binder<>(Actor.class);
+        this.doctorBinder = new Binder<>(Doctor.class);
 
         configureGrid();
         configureForm();
@@ -111,8 +117,8 @@ public class GestionUsuariosView extends VerticalLayout {
         NumberField edad = new NumberField("Edad");
         ComboBox<String> sexo = new ComboBox<>("Sexo");
         sexo.setItems("Femenino", "Masculino");
-        NumberField peso = new NumberField("Peso");
-        NumberField altura = new NumberField("Altura");
+        NumberField peso = new NumberField("Peso en kg");
+        NumberField altura = new NumberField("Altura en cm");
 
         binder.forField(nombre).asRequired("Nombre es requerido").bind(Usuario::getNombre, Usuario::setNombre);
         binder.forField(apellido).asRequired("Apellido es requerido").bind(Usuario::getApellido, Usuario::setApellido);
@@ -128,27 +134,26 @@ public class GestionUsuariosView extends VerticalLayout {
         binder.forField(rol).asRequired("Rol es requerido").bind(Usuario::getRol, Usuario::setRol);
 
         // Aplicar validaciones y bindings a los campos adicionales
-        binder.forField(edad)
+        actorBinder.forField(edad)
                 .withConverter(new DoubleToIntegerConverter())
-                .withValidator(p -> p == null || (p >= 5 && p <= 90), "La edad debe estar entre 5 y 90 años")
-                .bind(actor -> actorService.obtenerActorPorCorreo(actor.getCorreo()).map(Actor::getEdad).orElse(null),
-                        (actor, value) -> actorService.obtenerActorPorCorreo(actor.getCorreo()).ifPresent(a -> a.setEdad(value)));
+                .withValidator(p -> p == null || (p >= 15 && p <= 90), "La edad debe estar entre 15 y 90 años")
+                .bind(Actor::getEdad, Actor::setEdad);
 
-        binder.forField(sexo)
-                .bind(actor -> actorService.obtenerActorPorCorreo(actor.getCorreo()).map(Actor::getSexo).orElse(null),
-                        (actor, value) -> actorService.obtenerActorPorCorreo(actor.getCorreo()).ifPresent(a -> a.setSexo(value)));
+        actorBinder.forField(sexo)
+                .asRequired("Sexo es requerido")
+                .bind(Actor::getSexo, Actor::setSexo);
 
-        binder.forField(peso)
-                .withValidator(p -> p == null || (p >= 30 && p <= 300), "Peso debe estar entre 30 kg y 300 kg")
-                .bind(actor -> actorService.obtenerActorPorCorreo(actor.getCorreo()).map(Actor::getPeso).orElse(null),
-                        (actor, value) -> actorService.obtenerActorPorCorreo(actor.getCorreo()).ifPresent(a -> a.setPeso(value)));
+        actorBinder.forField(peso)
+                .withValidator(p -> p == null || (p >= 30 && p <= 250), "El peso debe estar entre 30 y 250 kg")
+                .bind(Actor::getPeso, Actor::setPeso);
 
-        binder.forField(altura)
-                .withValidator(a -> a == null || (a >= 1.0 && a <= 2.50), "Altura debe estar entre 1.0 m y 2.50 m")
-                .bind(actor -> actorService.obtenerActorPorCorreo(actor.getCorreo()).map(Actor::getAltura).orElse(null),
-                        (actor, value) -> actorService.obtenerActorPorCorreo(actor.getCorreo()).ifPresent(a -> a.setAltura(value)));
+        actorBinder.forField(altura)
+                .withValidator(a -> a == null || (a >= 140 && a <= 240), "La altura debe estar entre 140 y 240 cm")
+                .bind(Actor::getAltura, Actor::setAltura);
 
-        binder.readBean(usuario);
+        doctorBinder.forField(nombre).bind(Doctor::getNombre, Doctor::setNombre);
+        doctorBinder.forField(apellido).bind(Doctor::getApellido, Doctor::setApellido);
+        doctorBinder.forField(correo).bind(Doctor::getCorreo, Doctor::setCorreo);
 
         formLayout.add(nombre, apellido, correo, contraseña, rol);
 
@@ -167,44 +172,56 @@ public class GestionUsuariosView extends VerticalLayout {
                 sexo.setValue(actor.getSexo());
                 peso.setValue(actor.getPeso());
                 altura.setValue(actor.getAltura());
+                actorBinder.readBean(actor);
+            });
+        } else if ("Doctor".equals(usuario.getRol())) {
+            doctorService.obtenerDoctorPorCorreo(usuario.getCorreo()).ifPresent(doctor -> {
+                nombre.setValue(doctor.getNombre());
+                apellido.setValue(doctor.getApellido());
+                correo.setValue(doctor.getCorreo());
+                doctorBinder.readBean(doctor);
             });
         }
 
+        binder.readBean(usuario);
+
         Button saveButton = new Button("Guardar", event -> {
             try {
-                // Limpiar mensajes de error antes de intentar guardar
-                binder.validate();
-
-                if (!binder.isValid()) {
-                    return;
-                }
-
+                // Validar y escribir datos del usuario
                 binder.writeBean(usuario);
 
                 if (usuario.getId() == null) {
+                    // Crear nuevo usuario
                     usuarioService.registrarUsuario(usuario);
                     if ("Actor".equals(usuario.getRol())) {
                         Actor actor = new Actor();
-                        actor.setNombre(usuario.getNombre());
+                        actorBinder.writeBean(actor);
                         actor.setCorreo(usuario.getCorreo());
-                        actor.setEdad(edad.getValue() != null ? edad.getValue().intValue() : 0);
-                        actor.setSexo(sexo.getValue());
-                        actor.setPeso(peso.getValue());
-                        actor.setAltura(altura.getValue());
                         actorService.guardarActor(actor);
+                    } else if ("Doctor".equals(usuario.getRol())) {
+                        Doctor doctor = new Doctor();
+                        doctorBinder.writeBean(doctor);
+                        doctor.setCorreo(usuario.getCorreo());
+                        doctor.setNombre(usuario.getNombre());
+                        doctor.setApellido(usuario.getApellido());
+                        doctorService.guardarDoctor(doctor);
                     }
                     Notification.show("Usuario creado");
                 } else {
+                    // Actualizar usuario existente
                     usuarioService.actualizarUsuario(usuario.getId(), usuario);
                     if ("Actor".equals(usuario.getRol())) {
                         Actor actor = actorService.obtenerActorPorCorreo(usuario.getCorreo()).orElse(new Actor());
-                        actor.setNombre(usuario.getNombre());
+                        actorBinder.writeBean(actor);
                         actor.setCorreo(usuario.getCorreo());
-                        actor.setEdad(edad.getValue() != null ? edad.getValue().intValue() : 0);
-                        actor.setSexo(sexo.getValue());
-                        actor.setPeso(peso.getValue());
-                        actor.setAltura(altura.getValue());
                         actorService.guardarActor(actor);
+                    } else if ("Doctor".equals(usuario.getRol())) {
+                        Doctor doctor = doctorService.obtenerDoctorPorCorreo(usuario.getCorreo()).orElse(new Doctor());
+                        doctorBinder.writeBean(doctor);
+                        doctor.setCorreo(usuario.getCorreo());
+                        doctor.setNombre(usuario.getNombre());
+                        doctor.setApellido(usuario.getApellido());
+                        doctorService.guardarDoctor(doctor);
                     }
                     Notification.show("Usuario actualizado");
                 }

@@ -1,8 +1,9 @@
-// UsuarioService.java
 package com.pacientesimulado.application.services;
 
 import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.repository.UsuarioRepository;
+import com.pacientesimulado.application.repository.ActorRepository;
+import com.pacientesimulado.application.repository.DoctorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,12 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private ActorRepository actorRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
 
     public Usuario registrarUsuario(Usuario usuario) {
         if (usuarioRepository.findByCorreo(usuario.getCorreo()).isPresent()) {
@@ -53,7 +60,16 @@ public class UsuarioService {
     }
 
     public void eliminarUsuario(String id) {
-        usuarioRepository.deleteById(id);
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
+            if ("Doctor".equals(usuario.getRol())) {
+                doctorRepository.deleteByCorreo(usuario.getCorreo());
+            } else if ("Actor".equals(usuario.getRol())) {
+                actorRepository.deleteByCorreo(usuario.getCorreo());
+            }
+            usuarioRepository.deleteById(id);
+        }
     }
 
     public Usuario buscarPorCorreo(String correo) {

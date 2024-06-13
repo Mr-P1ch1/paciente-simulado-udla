@@ -19,17 +19,19 @@ public class Reserva {
     private Integer numeroPacientes;
     private String formaRequerimiento;
     private LocalDate fechaEntrenamiento;
-    private String[] horasEntrenamiento;
+    private List<String> horasEntrenamiento;
     private LocalDate fechaSeccion;
-    private String[] horasSeccion;
+    private List<String> horasSeccion;
     private List<Paciente> pacientes;
     private String estado;
-    private List<Actor> actoresAsignados; // Nueva lista para almacenar actores asignados
+    private List<Actor> actoresAsignados;
     private String actorAsignadoId;
     private String tipoReserva;
+    private List<Disponibilidad> disponibilidadEntrenamiento;
 
     public Reserva() {
     }
+
     // Constructor para disponibilidad
     public Reserva(String correoDoctor, String carrera, Map<LocalDate, List<String>> disponibilidad) {
         this.correoDoctor = correoDoctor;
@@ -48,125 +50,126 @@ public class Reserva {
 
     // Getters y setters
 
-    public String getId ( ) {
+    public String getId() {
         return id;
     }
 
-    public void setId ( String id ) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getCorreoDoctor ( ) {
+    public String getCorreoDoctor() {
         return correoDoctor;
     }
 
-    public void setCorreoDoctor ( String correoDoctor ) {
+    public void setCorreoDoctor(String correoDoctor) {
         this.correoDoctor = correoDoctor;
     }
 
-    public String getCarrera ( ) {
+    public String getCarrera() {
         return carrera;
     }
 
-    public void setCarrera ( String carrera ) {
+    public void setCarrera(String carrera) {
         this.carrera = carrera;
     }
 
-    public String getTipo ( ) {
+    public String getTipo() {
         return tipo;
     }
 
-    public void setTipo ( String tipo ) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 
-    public String getCaso ( ) {
+    public String getCaso() {
         return caso;
     }
 
-    public void setCaso ( String caso ) {
+    public void setCaso(String caso) {
         this.caso = caso;
     }
 
-    public String getActividad ( ) {
+    public String getActividad() {
         return actividad;
     }
 
-    public void setActividad ( String actividad ) {
+    public void setActividad(String actividad) {
         this.actividad = actividad;
     }
 
-    public Integer getNumeroPacientes ( ) {
+    public Integer getNumeroPacientes() {
         return numeroPacientes;
     }
 
-    public void setNumeroPacientes ( Integer numeroPacientes ) {
+    public void setNumeroPacientes(Integer numeroPacientes) {
         this.numeroPacientes = numeroPacientes;
     }
 
-    public String getFormaRequerimiento ( ) {
+    public String getFormaRequerimiento() {
         return formaRequerimiento;
     }
 
-    public void setFormaRequerimiento ( String formaRequerimiento ) {
+    public void setFormaRequerimiento(String formaRequerimiento) {
         this.formaRequerimiento = formaRequerimiento;
     }
 
-    public LocalDate getFechaEntrenamiento ( ) {
+    public LocalDate getFechaEntrenamiento() {
         return fechaEntrenamiento;
     }
 
-    public void setFechaEntrenamiento ( LocalDate fechaEntrenamiento ) {
+    public void setFechaEntrenamiento(LocalDate fechaEntrenamiento) {
         this.fechaEntrenamiento = fechaEntrenamiento;
     }
 
-    public String[] getHorasEntrenamiento ( ) {
+    public List<String> getHorasEntrenamiento() {
         return horasEntrenamiento;
     }
 
-    public void setHorasEntrenamiento ( String[] horasEntrenamiento ) {
+    public void setHorasEntrenamiento(List<String> horasEntrenamiento) {
         this.horasEntrenamiento = horasEntrenamiento;
     }
 
-    public LocalDate getFechaSeccion ( ) {
+    public LocalDate getFechaSeccion() {
         return fechaSeccion;
     }
 
-    public void setFechaSeccion ( LocalDate fechaSeccion ) {
+    public void setFechaSeccion(LocalDate fechaSeccion) {
         this.fechaSeccion = fechaSeccion;
     }
 
-    public String[] getHorasSeccion ( ) {
+    public List<String> getHorasSeccion() {
         return horasSeccion;
     }
 
-    public void setHorasSeccion ( String[] horasSeccion ) {
+    public void setHorasSeccion(List<String> horasSeccion) {
         this.horasSeccion = horasSeccion;
     }
 
-    public List < Paciente > getPacientes ( ) {
+    public List<Paciente> getPacientes() {
         return pacientes;
     }
 
-    public void setPacientes ( List < Paciente > pacientes ) {
+    public void setPacientes(List<Paciente> pacientes) {
         this.pacientes = pacientes;
     }
 
-    public String getEstado ( ) {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado ( String estado ) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 
-    public List < Actor > getActoresAsignados ( ) {
+    public List<Actor> getActoresAsignados() {
         return actoresAsignados;
     }
 
-    public void setActoresAsignados ( List < Actor > actoresAsignados ) {
+    public void setActoresAsignados(List<Actor> actoresAsignados) {
         this.actoresAsignados = actoresAsignados;
     }
+
     public String getActorAsignadoId() {
         return actorAsignadoId;
     }
@@ -175,11 +178,19 @@ public class Reserva {
         this.actorAsignadoId = actorAsignadoId;
     }
 
-    public String getTipoReserva ( ) {
+    public String getTipoReserva() {
         return tipoReserva;
     }
 
-    public void setTipoReserva ( String tipoReserva ) {
+    public void setTipoReserva(String tipoReserva) {
         this.tipoReserva = tipoReserva;
+    }
+
+    public List<Disponibilidad> getDisponibilidadEntrenamiento() {
+        return disponibilidadEntrenamiento;
+    }
+
+    public void setDisponibilidadEntrenamiento(List<Disponibilidad> disponibilidadEntrenamiento) {
+        this.disponibilidadEntrenamiento = disponibilidadEntrenamiento;
     }
 }

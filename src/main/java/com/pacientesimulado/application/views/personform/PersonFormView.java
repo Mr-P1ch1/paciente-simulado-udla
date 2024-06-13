@@ -29,8 +29,8 @@ public class PersonFormView extends VerticalLayout {
     private Actor actor;
 
     private NumberField edadField = new NumberField("Edad");
-    private NumberField pesoField = new NumberField("Peso");
-    private NumberField alturaField = new NumberField("Altura");
+    private NumberField pesoField = new NumberField("Peso en kg");
+    private NumberField alturaField = new NumberField("Altura en cm");
     private Paragraph welcomeMessage = new Paragraph();
 
     private Binder<Actor> binder = new Binder<>(Actor.class);
@@ -68,7 +68,7 @@ public class PersonFormView extends VerticalLayout {
 
         binder.forField(alturaField)
                 .asRequired("Altura es requerida")
-                .withValidator(a -> a != null && a >= 1.0 && a <= 2.50, "Altura debe estar entre 1.0 m y 2.50 m")
+                .withValidator(a -> a != null && a >= 100 && a <= 250, "Altura debe estar entre 1.0 m y 2.50 m")
                 .bind(Actor::getAltura, Actor::setAltura);
 
         // Cargar actor por el correo del usuario actual

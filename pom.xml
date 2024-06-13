@@ -86,7 +86,13 @@
       <groupId>com.vaadin</groupId>  
       <artifactId>vaadin-testbench-junit5</artifactId>  
       <scope>test</scope> 
-    </dependency> 
+    </dependency>
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4.7</version>
+    </dependency>
+
   </dependencies>  
   <build> 
     <defaultGoal>spring-boot:run</defaultGoal>  
