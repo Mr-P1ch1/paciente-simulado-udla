@@ -46,6 +46,7 @@ public class DisponibilidadPracticaDoctorView extends VerticalLayout {
         add(welcomeMessage);
 
         datePicker = new DatePicker("Seleccione una o varias fechas");
+        datePicker.setWidth("500px");
         datePicker.setPlaceholder("Seleccione fechas");
         datePicker.setClearButtonVisible(true);
         datePicker.setEnabled(true);
@@ -75,6 +76,7 @@ public class DisponibilidadPracticaDoctorView extends VerticalLayout {
         dateLayout.add(new H2(formattedDate));
 
         MultiSelectComboBox<String> hoursComboBox = new MultiSelectComboBox<>("Seleccione una o varias horas");
+        hoursComboBox.setWidth("500px");
         hoursComboBox.setItems(
                 "07h00", "08h05", "09h10", "10h15", "11h20",
                 "12h25", "13h30", "14h35", "15h40", "16h45",
