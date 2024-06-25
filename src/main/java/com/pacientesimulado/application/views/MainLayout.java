@@ -58,8 +58,8 @@ public class MainLayout extends AppLayout implements BeforeEnterObserver {
                 ));
             } else if ("Actor".equals(user.getRol())) {
                 addToDrawer(new VerticalLayout(
-                        new RouterLink("Actualizar Datos del Actor", PersonFormView.class),
-                        new RouterLink("Disponibilidad Semana de Clases", DisponibilidadSemanaDeClasesView.class)
+                        new RouterLink("Disponibilidad Semana de Clases", DisponibilidadSemanaDeClasesView.class),
+                        new RouterLink("Actualizar Datos del Actor", PersonFormView.class)
                 ));
             } else if ("Doctor".equals(user.getRol())) {
                 addToDrawer(new VerticalLayout(

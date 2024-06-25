@@ -2,6 +2,7 @@ package com.pacientesimulado.application.views.login;
 
 import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.services.UsuarioService;
+import com.pacientesimulado.application.views.disponibilidadsemanadeclases.DisponibilidadSemanaDeClasesView;
 import com.pacientesimulado.application.views.gestionusuarios.GestionUsuariosView;
 import com.pacientesimulado.application.views.registro.RegistroView;
 import com.pacientesimulado.application.views.reservaprogramapacientesimuladoactor.ReservaProgramaPacienteSimuladoACTORView;
@@ -70,7 +71,7 @@ public class LoginView extends VerticalLayout {
                     if ("Administrador".equals(user.getRol())) {
                         getUI().ifPresent(ui -> ui.navigate(GestionUsuariosView.class));
                     } else if ("Actor".equals(user.getRol())) {
-                        getUI().ifPresent(ui -> ui.navigate(PersonFormView.class));
+                        getUI().ifPresent(ui -> ui.navigate(DisponibilidadSemanaDeClasesView.class));
                     } else if ("Doctor".equals(user.getRol())) {
                         getUI().ifPresent(ui -> ui.navigate(ReservaProgramaPacienteSimuladoACTORView.class));
                     }

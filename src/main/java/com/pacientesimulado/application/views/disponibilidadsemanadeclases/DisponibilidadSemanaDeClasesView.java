@@ -8,9 +8,13 @@ import com.pacientesimulado.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -35,6 +39,7 @@ public class DisponibilidadSemanaDeClasesView extends VerticalLayout {
     private VerticalLayout datesLayout;
     private Button saveButton;
     private Paragraph welcomeMessage = new Paragraph();
+    private List<Disponibilidad> existingDisponibilidades;
 
     @Autowired
     public DisponibilidadSemanaDeClasesView(DisponibilidadService disponibilidadService, ActorService actorService) {
@@ -60,7 +65,12 @@ public class DisponibilidadSemanaDeClasesView extends VerticalLayout {
         datePicker.addValueChangeListener(event -> {
             LocalDate selectedDate = event.getValue();
             if (selectedDate != null) {
-                addDateWithHours(selectedDate);
+                if (isDateAlreadySelected(selectedDate)) {
+                    Notification.show("Fecha ya seleccionada. Edite la fecha existente.");
+                    loadExistingDateWithHours(selectedDate);
+                } else {
+                    addDateWithHours(selectedDate);
+                }
                 datePicker.clear();
             }
         });
@@ -69,6 +79,21 @@ public class DisponibilidadSemanaDeClasesView extends VerticalLayout {
         saveButton.setEnabled(true);
 
         add(datePicker, datesLayout, saveButton);
+
+        Button viewDisponibilidadesButton = new Button("Ver Disponibilidades", event -> showDisponibilidadesDialog());
+        add(viewDisponibilidadesButton);
+
+        loadExistingDisponibilidades(currentUser);
+    }
+
+    private boolean isDateAlreadySelected(LocalDate date) {
+        return existingDisponibilidades.stream().anyMatch(d -> d.getFecha().equals(date));
+    }
+
+    private void loadExistingDisponibilidades(Usuario currentUser) {
+        actorService.obtenerActorPorCorreo(currentUser.getCorreo()).ifPresent(actor -> {
+            existingDisponibilidades = actor.getDisponibilidades();
+        });
     }
 
     private void addDateWithHours(LocalDate date) {
@@ -85,8 +110,55 @@ public class DisponibilidadSemanaDeClasesView extends VerticalLayout {
                 "17h45", "18h50", "19h50"
         );
 
-        dateLayout.add(hoursComboBox);
+        Button selectAllButton = new Button("Seleccionar todas las horas", event -> {
+            hoursComboBox.select("07h00", "08h05", "09h10", "10h15", "11h20",
+                    "12h25", "13h30", "14h35", "15h40", "16h45",
+                    "17h45", "18h50", "19h50");
+        });
+
+        Button deleteButton = new Button("Eliminar Fecha", event -> datesLayout.remove(dateLayout));
+        deleteButton.getStyle().set("color", "red");
+
+        dateLayout.add(hoursComboBox, selectAllButton, deleteButton);
         datesLayout.add(dateLayout);
+    }
+
+    private void loadExistingDateWithHours(LocalDate date) {
+        existingDisponibilidades.stream()
+                .filter(d -> d.getFecha().equals(date))
+                .findFirst()
+                .ifPresent(existingDisponibilidad -> {
+                    VerticalLayout dateLayout = new VerticalLayout();
+                    String formattedDate = date.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es")) + " " +
+                            date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                    dateLayout.add(new H2(formattedDate));
+
+                    MultiSelectComboBox<String> hoursComboBox = new MultiSelectComboBox<>("Seleccione una o varias horas");
+                    hoursComboBox.setWidth("400px");
+                    hoursComboBox.setItems(
+                            "07h00", "08h05", "09h10", "10h15", "11h20",
+                            "12h25", "13h30", "14h35", "15h40", "16h45",
+                            "17h45", "18h50", "19h50"
+                    );
+
+                    List<String> selectedHours = new ArrayList<>();
+                    for (Disponibilidad.HoraDisponibilidad hora : existingDisponibilidad.getHoras()) {
+                        selectedHours.add(hora.getHora());
+                    }
+                    hoursComboBox.setValue(selectedHours);
+
+                    Button selectAllButton = new Button("Seleccionar todas las horas", event -> {
+                        hoursComboBox.select("07h00", "08h05", "09h10", "10h15", "11h20",
+                                "12h25", "13h30", "14h35", "15h40", "16h45",
+                                "17h45", "18h50", "19h50");
+                    });
+
+                    Button deleteButton = new Button("Eliminar Fecha", event -> datesLayout.remove(dateLayout));
+                    deleteButton.getStyle().set("color", "red");
+
+                    dateLayout.add(hoursComboBox, selectAllButton, deleteButton);
+                    datesLayout.add(dateLayout);
+                });
     }
 
     private void guardarDisponibilidad() {
@@ -113,7 +185,11 @@ public class DisponibilidadSemanaDeClasesView extends VerticalLayout {
                 nuevasDisponibilidades.add(disponibilidad);
             }
 
-            // Obtener las disponibilidades existentes y combinarlas con las nuevas
+            if (nuevasDisponibilidades.size() < 2) {
+                Notification.show("Debe seleccionar al menos dos fechas.");
+                return;
+            }
+
             List<Disponibilidad> disponibilidadesExistentes = actor.getDisponibilidades();
             List<Disponibilidad> disponibilidadesCombinadas = new ArrayList<>(disponibilidadesExistentes);
 
@@ -123,12 +199,10 @@ public class DisponibilidadSemanaDeClasesView extends VerticalLayout {
                         .findFirst();
 
                 if (existente.isPresent()) {
-                    // Si la fecha ya existe, agregar las nuevas horas a las existentes
                     List<Disponibilidad.HoraDisponibilidad> horasCombinadas = new ArrayList<>(existente.get().getHoras());
                     horasCombinadas.addAll(nueva.getHoras());
                     existente.get().setHoras(horasCombinadas);
                 } else {
-                    // Si la fecha no existe, agregar la nueva disponibilidad
                     disponibilidadesCombinadas.add(nueva);
                 }
             }
@@ -138,5 +212,104 @@ public class DisponibilidadSemanaDeClasesView extends VerticalLayout {
             Notification.show("Disponibilidad guardada");
         });
         datesLayout.removeAll();
+    }
+
+    private void showDisponibilidadesDialog() {
+        Dialog disponibilidadesDialog = new Dialog();
+        disponibilidadesDialog.setWidth("80%");
+        disponibilidadesDialog.setHeight("80%");
+
+        Grid<Disponibilidad> grid = new Grid<>(Disponibilidad.class, false);
+        grid.addColumn(d -> d.getFecha().getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es")) + " " +
+                d.getFecha().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))).setHeader("Fecha");
+        grid.addColumn(d -> {
+            StringBuilder horas = new StringBuilder();
+            for (Disponibilidad.HoraDisponibilidad hora : d.getHoras()) {
+                if (horas.length() > 0) horas.append(", ");
+                horas.append(hora.getHora()).append(" (").append(hora.getEstado()).append(")");
+            }
+            return horas.toString();
+        }).setHeader("Horas");
+
+        grid.addComponentColumn(disponibilidad -> {
+            HorizontalLayout actions = new HorizontalLayout();
+
+            Button editButton = new Button("Editar", event -> {
+                disponibilidadesDialog.close();
+                showEditDialog(disponibilidad);
+            });
+            editButton.getStyle().set("color", "green");
+
+            Button deleteButton = new Button("Eliminar", event -> {
+                deleteDisponibilidad(disponibilidad);
+                disponibilidadesDialog.close();
+            });
+            deleteButton.getStyle().set("color", "red");
+
+            actions.add(editButton, deleteButton);
+            return actions;
+        }).setHeader("Acciones");
+
+        grid.setItems(existingDisponibilidades);
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+
+        disponibilidadesDialog.add(grid);
+        disponibilidadesDialog.open();
+    }
+
+    private void showEditDialog(Disponibilidad disponibilidad) {
+        Dialog editDialog = new Dialog();
+        editDialog.setWidth("50%");
+        editDialog.setHeight("50%");
+
+        VerticalLayout editLayout = new VerticalLayout();
+        String formattedDate = disponibilidad.getFecha().getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("es")) + " " +
+                disponibilidad.getFecha().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        editLayout.add(new H2(formattedDate));
+
+        MultiSelectComboBox<String> hoursComboBox = new MultiSelectComboBox<>("Seleccione una o varias horas");
+        hoursComboBox.setWidth("400px");
+        hoursComboBox.setItems(
+                "07h00", "08h05", "09h10", "10h15", "11h20",
+                "12h25", "13h30", "14h35", "15h40", "16h45",
+                "17h45", "18h50", "19h50"
+        );
+
+        List<String> selectedHours = new ArrayList<>();
+        for (Disponibilidad.HoraDisponibilidad hora : disponibilidad.getHoras()) {
+            selectedHours.add(hora.getHora());
+        }
+        hoursComboBox.setValue(selectedHours);
+
+        Button saveButton = new Button("Guardar", event -> {
+            List<Disponibilidad.HoraDisponibilidad> nuevasHoras = new ArrayList<>();
+            for (String hour : hoursComboBox.getSelectedItems()) {
+                Disponibilidad.HoraDisponibilidad horaDisponibilidad = new Disponibilidad.HoraDisponibilidad();
+                horaDisponibilidad.setHora(hour);
+                horaDisponibilidad.setEstado("libre");
+                nuevasHoras.add(horaDisponibilidad);
+            }
+            disponibilidad.setHoras(nuevasHoras);
+            actorService.guardarActor(VaadinSession.getCurrent().getAttribute(com.pacientesimulado.application.data.Actor.class));
+            Notification.show("Disponibilidad actualizada");
+            editDialog.close();
+            showDisponibilidadesDialog(); // Refrescar el diálogo de disponibilidades
+        });
+
+        editLayout.add(hoursComboBox, saveButton);
+        editDialog.add(editLayout);
+        editDialog.open();
+    }
+
+    private void deleteDisponibilidad(Disponibilidad disponibilidad) {
+        Usuario currentUser = VaadinSession.getCurrent().getAttribute(Usuario.class);
+        actorService.obtenerActorPorCorreo(currentUser.getCorreo()).ifPresent(actor -> {
+            List<Disponibilidad> disponibilidadesExistentes = actor.getDisponibilidades();
+            disponibilidadesExistentes.removeIf(d -> d.getFecha().equals(disponibilidad.getFecha()));
+            actor.setDisponibilidades(disponibilidadesExistentes);
+            actorService.guardarActor(actor);
+            Notification.show("Disponibilidad eliminada");
+            showDisponibilidadesDialog(); // Refrescar el diálogo de disponibilidades
+        });
     }
 }
