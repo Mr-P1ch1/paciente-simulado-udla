@@ -68,6 +68,9 @@ public class DisponibilidadPracticaDoctorView extends VerticalLayout {
                 Optional<Doctor> optionalDoctor = doctorService.obtenerDoctorPorCorreo(currentUser1.getCorreo());
                 if (optionalDoctor.isPresent()) {
                     Doctor doctor = optionalDoctor.get();
+                    if (doctor.getDisponibilidades() == null) {
+                        doctor.setDisponibilidades(new ArrayList<>());
+                    }
                     Optional<Disponibilidad> existingDisponibilidad = doctor.getDisponibilidades().stream()
                             .filter(d -> d.getFecha().equals(selectedDate))
                             .findFirst();
@@ -173,8 +176,8 @@ public class DisponibilidadPracticaDoctorView extends VerticalLayout {
             Grid<Disponibilidad> disponibilidadGrid = new Grid<>(Disponibilidad.class, false);
             disponibilidadGrid.addColumn(d -> d.getFecha().format(DateTimeFormatter.ofPattern("EEEE dd-MM-yyyy", new Locale("es")))).setHeader("Fecha");
             disponibilidadGrid.addColumn(d -> d.getHoras().stream()
-                    .map(h -> h.getHora() + " (" + h.getEstado() + ")")
-                    .collect(Collectors.joining(", ")))
+                            .map(h -> h.getHora() + " (" + h.getEstado() + ")")
+                            .collect(Collectors.joining(", ")))
                     .setHeader("Horas");
             disponibilidadGrid.addComponentColumn(disponibilidad -> {
                 Button editButton = new Button("Editar", event -> {

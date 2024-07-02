@@ -4,6 +4,7 @@ import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.repository.UsuarioRepository;
 import com.pacientesimulado.application.repository.ActorRepository;
 import com.pacientesimulado.application.repository.DoctorRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -82,5 +83,18 @@ public class UsuarioService {
 
     public Optional<Usuario> obtenerUsuarioPorCorreoOptional(String correo) {
         return usuarioRepository.findByCorreo(correo);
+    }
+    @PostConstruct
+    public void crearAdminUsuario() {
+        String adminCorreo = "alejandropaqui00@gmail.com";
+        if (!usuarioRepository.findByCorreo(adminCorreo).isPresent()) {
+            Usuario admin = new Usuario();
+            admin.setNombre("Justin");
+            admin.setApellido("Paqui");
+            admin.setCorreo(adminCorreo);
+            admin.setContraseña("123");
+            admin.setRol("Administrador");
+            usuarioRepository.save(admin);
+        }
     }
 }

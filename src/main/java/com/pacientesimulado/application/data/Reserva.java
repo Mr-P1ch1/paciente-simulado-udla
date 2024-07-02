@@ -16,6 +16,7 @@ public class Reserva {
     private String tipo;
     private String caso;
     private String actividad;
+    private String aula;
     private Integer numeroPacientes;
     private String formaRequerimiento;
     private LocalDate fechaEntrenamiento;
@@ -192,5 +193,13 @@ public class Reserva {
 
     public void setDisponibilidadEntrenamiento(List<Disponibilidad> disponibilidadEntrenamiento) {
         this.disponibilidadEntrenamiento = disponibilidadEntrenamiento;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
     }
 }

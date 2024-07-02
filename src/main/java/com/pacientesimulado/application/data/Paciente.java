@@ -6,7 +6,8 @@ public class Paciente {
     private boolean requiereMoulage;
     private String detalleMoulage;
 
-    public Paciente() {}
+    public Paciente() {
+    }
 
     public Paciente(String genero, String rangoEdad, boolean requiereMoulage, String detalleMoulage) {
         this.genero = genero;

@@ -3,6 +3,7 @@ package com.pacientesimulado.application.services;
 import com.pacientesimulado.application.data.Actor;
 import com.pacientesimulado.application.data.Reserva;
 import com.pacientesimulado.application.repository.ReservaRepository;
+import com.pacientesimulado.application.repository.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,13 @@ public class ReservaService {
 
     private static final Logger logger = LoggerFactory.getLogger(ReservaService.class);
 
+    private final UsuarioRepository usuarioRepository;
     private final ReservaRepository reservaRepository;
 
     @Autowired
-    public ReservaService(ReservaRepository reservaRepository) {
+    public ReservaService(ReservaRepository reservaRepository, UsuarioRepository usuarioRepository) {
         this.reservaRepository = reservaRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public List<Reserva> obtenerTodasLasReservas() {

@@ -3,6 +3,7 @@ package com.pacientesimulado.application.views;
 import com.pacientesimulado.application.data.Usuario;
 import com.pacientesimulado.application.views.disponibilidadpracticadoctor.DisponibilidadPracticaDoctorView;
 import com.pacientesimulado.application.views.disponibilidadsemanadeclases.DisponibilidadSemanaDeClasesView;
+import com.pacientesimulado.application.views.gestionactores.GestionActoresView;
 import com.pacientesimulado.application.views.gestionmaterias.GestionMateriasView;
 import com.pacientesimulado.application.views.gestionusuarios.GestionUsuariosView;
 import com.pacientesimulado.application.views.reservaprogramapacientesimuladoactor.ReservaProgramaPacienteSimuladoACTORView;
@@ -54,7 +55,8 @@ public class MainLayout extends AppLayout implements BeforeEnterObserver {
                 addToDrawer(new VerticalLayout(
                         new RouterLink("Gestión de Usuarios", GestionUsuariosView.class),
                         new RouterLink("Gestión de Materias", GestionMateriasView.class),
-                        new RouterLink("Solicitudes de Reserva", SolicitudesdereservaView.class)
+                        new RouterLink("Solicitudes de Reserva", SolicitudesdereservaView.class),
+                        new RouterLink("Actores", GestionActoresView.class)
                 ));
             } else if ("Actor".equals(user.getRol())) {
                 addToDrawer(new VerticalLayout(
